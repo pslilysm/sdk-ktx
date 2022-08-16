@@ -2,7 +2,6 @@ package pers.pslilysm.sdk_library.base
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -70,7 +69,6 @@ object UIComponentPlugins {
         vararg args: Any?
     ): T {
         var fmt = finder.findFragment<T>(fmtClass, *args)
-        Log.i(TAG, "findOrCreateFmt: $fmt")
         if (fmt == null) {
             fmt = creator.create(fmtClass)
         }
@@ -104,7 +102,6 @@ object UIComponentPlugins {
                     @Volatile
                     private var mLoaded = false
                     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                        Log.d(TAG, "onStateChanged() called with: source = $source, event = $event")
                         if (event == Lifecycle.Event.ON_RESUME) {
                             if (!mLoaded) {
                                 mLoaded = true
