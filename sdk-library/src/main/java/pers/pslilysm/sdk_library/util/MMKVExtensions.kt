@@ -64,11 +64,11 @@ object MMKVExtensions {
      *
      * @param key          mapped value
      * @param defaultValue will be return if not find the key
-     * @return saved value by key
+     * @return defaultValue if not found the key
      */
     @kotlin.jvm.JvmStatic
-    fun <T> MMKV.decode(key: String, defaultValue: T): T? {
-        return decode<T>(key, defaultValue, null)
+    fun <T> MMKV.decode(key: String, defaultValue: T): T {
+        return decode<T>(key, defaultValue, null)!!
     }
 
     /**
@@ -89,35 +89,35 @@ object MMKVExtensions {
         } else {
             valueClass!!
         }
-        return if (clazz == Int::class.java) {
+        return if (clazz == Int::class.javaPrimitiveType || clazz == Int::class.javaObjectType) {
             Integer.valueOf(
                 this.decodeInt(
                     key,
                     (if (defaultValue == null) 0 else defaultValue as Int?)!!
                 )
             ) as T
-        } else (if (clazz == Float::class.java) {
+        } else (if (clazz == Float::class.javaPrimitiveType || clazz == Float::class.javaObjectType) {
             java.lang.Float.valueOf(
                 this.decodeFloat(
                     key,
                     (if (defaultValue == null) 0 else defaultValue as Float?) as Float
                 )
             ) as T
-        } else if (clazz == Double::class.java) {
+        } else if (clazz == Double::class.javaPrimitiveType || clazz == Double::class.javaObjectType) {
             java.lang.Double.valueOf(
                 this.decodeDouble(
                     key,
                     (if (defaultValue == null) 0 else defaultValue as Double?) as Double
                 )
             ) as T
-        } else if (clazz == Long::class.java) {
+        } else if (clazz == Long::class.javaPrimitiveType || clazz == Long::class.javaObjectType) {
             java.lang.Long.valueOf(
                 this.decodeLong(
                     key,
                     (if (defaultValue == null) 0 else defaultValue as Long?)!!
                 )
             ) as T
-        } else if (clazz == Boolean::class.java) {
+        } else if (clazz == Boolean::class.javaPrimitiveType || clazz == Boolean::class.javaObjectType) {
             java.lang.Boolean.valueOf(
                 this.decodeBool(
                     key,
@@ -146,7 +146,6 @@ object MMKVExtensions {
      * @param tClass value's class
      * @param <T>    the type of the value and must extends [Parcelable]
      * @return a parcelable value by the key
-     * @see .decodeParcelable
      */
     @kotlin.jvm.JvmStatic
     fun <T : Parcelable?> MMKV.decodeParcelable(key: String?, tClass: Class<T?>?): T? {
@@ -167,8 +166,8 @@ object MMKVExtensions {
         key: String?,
         tClass: Class<T>?,
         defaultValue: T
-    ): T? {
-        return this.decodeParcelable(key, tClass, defaultValue)
+    ): T {
+        return this.decodeParcelable(key, tClass, defaultValue)!!
     }
 
 }

@@ -238,7 +238,7 @@ object ReflectionUtil {
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> getFieldValue(`object`: Any?, fieldName: String): T {
+    fun <T> getFieldValue(`object`: Any?, fieldName: String): T? {
         return findOrCreateField(`object`!!.javaClass, fieldName)[`object`] as T
     }
 
@@ -250,13 +250,17 @@ object ReflectionUtil {
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> invokeMethod(`object`: Any, methodName: String): T {
+    fun <T> invokeMethod(`object`: Any, methodName: String): T? {
         return invokeMethod(`object`, methodName, *sEmptyParameterTypesAndArgs)
     }
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> invokeMethod(`object`: Any, methodName: String, vararg parameterTypesAndArgs: Any?): T {
+    fun <T> invokeMethod(
+        `object`: Any,
+        methodName: String,
+        vararg parameterTypesAndArgs: Any?
+    ): T? {
         val clazz: Class<*> = `object`.javaClass
         val classLoader =
             if (clazz.classLoader == null) ClassLoader.getSystemClassLoader() else clazz.classLoader
@@ -275,7 +279,7 @@ object ReflectionUtil {
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> getStaticFieldValue(className: String, fieldName: String): T {
+    fun <T> getStaticFieldValue(className: String, fieldName: String): T? {
         return getStaticFieldValue(Class.forName(className), fieldName)
     }
 
@@ -285,13 +289,13 @@ object ReflectionUtil {
         className: String,
         classLoader: ClassLoader,
         fieldName: String
-    ): T {
+    ): T? {
         return getStaticFieldValue(classLoader.loadClass(className), fieldName)
     }
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> getStaticFieldValue(clazz: Class<*>, fieldName: String): T {
+    fun <T> getStaticFieldValue(clazz: Class<*>, fieldName: String): T? {
         return findOrCreateField(clazz, fieldName)[null] as T
     }
 
@@ -320,7 +324,7 @@ object ReflectionUtil {
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T : Any> invokeStaticMethod(className: String, methodName: String): T {
+    fun <T : Any> invokeStaticMethod(className: String, methodName: String): T? {
         return invokeStaticMethod(
             ClassLoader.getSystemClassLoader().loadClass(className),
             methodName,
@@ -334,7 +338,7 @@ object ReflectionUtil {
         className: String,
         classLoader: ClassLoader,
         methodName: String
-    ): T {
+    ): T? {
         return invokeStaticMethod(
             classLoader.loadClass(className),
             methodName,
@@ -344,7 +348,7 @@ object ReflectionUtil {
 
     @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
-    fun <T> invokeStaticMethod(clazz: Class<*>, methodName: String): T {
+    fun <T> invokeStaticMethod(clazz: Class<*>, methodName: String): T? {
         return invokeStaticMethod(clazz, methodName, *sEmptyParameterTypesAndArgs)
     }
 
@@ -355,7 +359,7 @@ object ReflectionUtil {
         classLoader: ClassLoader,
         methodName: String,
         vararg parameterTypesAndArgs: Any?
-    ): T {
+    ): T? {
         return invokeStaticMethod(
             classLoader.loadClass(className),
             methodName,
@@ -369,7 +373,7 @@ object ReflectionUtil {
         clazz: Class<*>,
         methodName: String,
         vararg parameterTypesAndArgs: Any?
-    ): T {
+    ): T? {
         val classLoader =
             if (clazz.classLoader == null) ClassLoader.getSystemClassLoader() else clazz.classLoader
         val splitParameterTypesAndArgs =

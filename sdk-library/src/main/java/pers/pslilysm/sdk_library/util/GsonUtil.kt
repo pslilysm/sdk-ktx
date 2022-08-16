@@ -102,7 +102,7 @@ object GsonUtil {
                 jsonObject,
                 "members"
             )
-            members.forEach { (s: String, jsonElement: JsonElement?) ->
+            members!!.forEach { (s: String, jsonElement: JsonElement?) ->
                 result[s] = sGson.fromJson(jsonElement, vClass)
             }
         } catch (e: ReflectiveOperationException) {

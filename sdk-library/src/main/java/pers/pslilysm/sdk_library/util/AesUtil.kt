@@ -97,7 +97,7 @@ object AesUtil {
      * @return 加密好的字符串，最后会BASE64编码一下
      */
     @kotlin.jvm.JvmStatic
-    fun encrypt(str: String, aesMode: String?, aesKey: String, ivKey: String): String {
+    fun encrypt(str: String, aesMode: String, aesKey: String, ivKey: String): String {
         return try {
             val cipher = Cipher.getInstance(aesMode)
             cipher.init(
@@ -122,7 +122,7 @@ object AesUtil {
      * @return 解密好的字符串
      */
     @kotlin.jvm.JvmStatic
-    fun decrypt(str: String?, aesMode: String?, aesKey: String, ivKey: String): String {
+    fun decrypt(str: String, aesMode: String, aesKey: String, ivKey: String): String {
         return try {
             val cipher = Cipher.getInstance(aesMode)
             cipher.init(
