@@ -42,7 +42,6 @@ object UIComponentPlugins {
             return manager.findFragmentByTag("f$position") as T?
         }
     }
-    private val TAG = "CXD-" + UIComponentPlugins::class.java.simpleName
 
     @kotlin.jvm.JvmStatic
     fun <T : Fragment?> findOrCreateFmt(
@@ -58,7 +57,7 @@ object UIComponentPlugins {
                     throw ExceptionUtil.rethrow(e)
                 }
             }
-        }, args)
+        }, *args)
     }
 
     @kotlin.jvm.JvmStatic
