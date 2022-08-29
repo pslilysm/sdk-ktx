@@ -1,5 +1,6 @@
 package perx.pslilysm.sdk_ktx
 
+import android.os.SystemClock
 import android.util.Log
 import com.tencent.mmkv.MMKV
 import pers.pslilysm.sdk_library.AppHolder
@@ -64,7 +65,19 @@ object SdkTest {
             Log.i(TAG, "test: run")
         }
         ThreadUtil.checkIsMainThread()
-        ToastUtil.showShort("sdk test")
+        GlobalExecutors.io().execute {
+            ToastUtil.showShort("sdk test")
+            SystemClock.sleep(1000)
+            ToastUtil.showShort("sdk test1")
+            SystemClock.sleep(1000)
+            ToastUtil.showShort("sdk test2")
+            SystemClock.sleep(1000)
+            ToastUtil.showShort("sdk test3")
+            SystemClock.sleep(1000)
+            ToastUtil.showLong("sdk test4")
+            SystemClock.sleep(1000)
+            ToastUtil.showLong("sdk test5")
+        }
     }
 
 }
