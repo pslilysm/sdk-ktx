@@ -130,11 +130,9 @@ object ToastUtil {
         override fun run() {
             var toast = sToastTLS.get()
             toast?.cancel()
-            toast = Toast(AppHolder.get())
-            toast.duration = toastProp.duration
-            toast.setGravity(toastProp.gravity, toastProp.xOffset, toastProp.yOffset)
+            toast = Toast.makeText(AppHolder.get(), toastProp.text, toastProp.duration)
+            toast!!.setGravity(toastProp.gravity, toastProp.xOffset, toastProp.yOffset)
             toast.setMargin(toastProp.horizontalMargin, toast.verticalMargin)
-            toast.setText(toastProp.text)
             toast.show()
             sToastTLS.set(toast)
         }
