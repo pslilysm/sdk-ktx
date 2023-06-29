@@ -49,4 +49,7 @@ dependencies {
     // retrofit
     compileOnly 'com.squareup.retrofit2:retrofit:2.9.0'
 
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    compileOnly group: 'commons-codec', name: 'commons-codec', version: '1.15'
+
 }

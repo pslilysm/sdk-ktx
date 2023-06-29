@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 ```groovy
 dependencies {
     // add sdk-ktx to your dependencies
-    implementation 'com.github.pslilysm:sdk-ktx:2.1.0'
+    implementation 'com.github.pslilysm:sdk-ktx:2.2.0'
 }
 ```
 

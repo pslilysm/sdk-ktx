@@ -168,7 +168,6 @@ object ReflectionUtil {
         return method!!
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(className: String?): T {
         return newInstance(
@@ -177,19 +176,16 @@ object ReflectionUtil {
         )
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(className: String?, classLoader: ClassLoader): T {
         return newInstance(className, classLoader, *sEmptyParameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(className: String?, vararg parameterTypesAndArgs: Any?): T {
         return newInstance(className, ClassLoader.getSystemClassLoader(), *parameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(
         className: String?,
@@ -202,13 +198,11 @@ object ReflectionUtil {
         ) as T
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(clazz: Class<T>): T {
         return newInstance(clazz, *sEmptyParameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(clazz: Class<T>, vararg parameterTypesAndArgs: Any?): T {
         val classLoader =
@@ -216,7 +210,6 @@ object ReflectionUtil {
         return newInstance(clazz, classLoader, *parameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(
         clazz: Class<T>,
@@ -236,25 +229,21 @@ object ReflectionUtil {
         return instance
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> getFieldValue(`object`: Any?, fieldName: String): T? {
         return findOrCreateField(`object`!!.javaClass, fieldName)[`object`] as T
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun setFieldValue(`object`: Any, fieldName: String, fieldValue: Any?) {
         findOrCreateField(`object`.javaClass, fieldName)[`object`] = fieldValue
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeMethod(`object`: Any, methodName: String): T? {
         return invokeMethod(`object`, methodName, *sEmptyParameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeMethod(
         `object`: Any,
@@ -277,13 +266,11 @@ object ReflectionUtil {
         return result
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> getStaticFieldValue(className: String, fieldName: String): T? {
         return getStaticFieldValue(Class.forName(className), fieldName)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> getStaticFieldValue(
         className: String,
@@ -293,19 +280,16 @@ object ReflectionUtil {
         return getStaticFieldValue(classLoader.loadClass(className), fieldName)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> getStaticFieldValue(clazz: Class<*>, fieldName: String): T? {
         return findOrCreateField(clazz, fieldName)[null] as T
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun setStaticFiledValue(className: String, fieldName: String, fieldValue: Any?) {
         setStaticFiledValue(Class.forName(className), fieldName, fieldValue)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun setStaticFiledValue(
         className: String?,
@@ -316,13 +300,11 @@ object ReflectionUtil {
         setStaticFiledValue(classLoader.loadClass(className), fieldName, fieldValue)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun setStaticFiledValue(clazz: Class<*>, fieldName: String, fieldValue: Any?) {
         findOrCreateField(clazz, fieldName)[null] = fieldValue
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T : Any> invokeStaticMethod(className: String, methodName: String): T? {
         return invokeStaticMethod(
@@ -332,7 +314,6 @@ object ReflectionUtil {
         )
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(
         className: String,
@@ -346,13 +327,11 @@ object ReflectionUtil {
         )
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(clazz: Class<*>, methodName: String): T? {
         return invokeStaticMethod(clazz, methodName, *sEmptyParameterTypesAndArgs)
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(
         className: String,
@@ -367,7 +346,6 @@ object ReflectionUtil {
         )
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(
         clazz: Class<*>,
