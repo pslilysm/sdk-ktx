@@ -1,4 +1,4 @@
-package pers.pslilysm.sdk_library.base
+package pers.pslilysm.sdk_library.ui
 
 import androidx.fragment.app.Fragment
 

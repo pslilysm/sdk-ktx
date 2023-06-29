@@ -20,13 +20,11 @@ import java.util.zip.ZipFile
  */
 object CompressFileUtil {
 
-    @kotlin.jvm.JvmStatic
     @Throws(IOException::class)
     fun concurrentDecompressZip(srcFilePath: String, outputDirPath: String) {
         concurrentDecompressZip(File(srcFilePath), File(outputDirPath))
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(IOException::class)
     fun concurrentDecompressZip(srcFile: File, outputDir: File) {
         val es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5)
@@ -37,7 +35,6 @@ object CompressFileUtil {
         }
     }
 
-    @kotlin.jvm.JvmStatic
     @Throws(IOException::class)
     fun concurrentDecompressZip(
         srcFilePath: String,
@@ -57,7 +54,6 @@ object CompressFileUtil {
      * @param threads   the num of threads to run unzip task
      * @throws IOException if an I/O errors occurs
      */
-    @kotlin.jvm.JvmStatic
     @Throws(IOException::class)
     fun concurrentDecompressZip(srcFile: File, outputDir: File, es: ExecutorService, threads: Int) {
         require(!srcFile.isDirectory) { "please check if the srcFile is a file" }
@@ -198,7 +194,6 @@ object CompressFileUtil {
      * @param outputDir the output dir
      * @throws IOException if an I/O errors occurs
      */
-    @kotlin.jvm.JvmStatic
     @Throws(IOException::class)
     fun decompress7z(srcFile: File, outputDir: File) {
         require(!srcFile.isDirectory) { "please check if the srcFile is a file" }

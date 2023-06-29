@@ -9,12 +9,12 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.Consumer
 
 /**
- * EventHandler is designed to send event between [pers.pslilysm.sdk_library.base.UIComponent]
+ * EventHandler is designed to send event between UIComponent
  *
  * @author pslilysm
  * @since 1.0.0
  */
-class EventHandler @JvmOverloads constructor(looper: Looper, callback: Callback? = null) :
+class EventHandler constructor(looper: Looper, callback: Callback? = null) :
     Handler(looper, callback) {
     private val mMultiCallbacks: ConcurrentMap<Int, MutableList<EventCallback>> =
         ConcurrentHashMap()
@@ -63,17 +63,13 @@ class EventHandler @JvmOverloads constructor(looper: Looper, callback: Callback?
     }
 
     companion object {
-        private val sDefault = object : Singleton<EventHandler>() {
-            override fun create(): EventHandler {
-                return EventHandler(Looper.getMainLooper())
-            }
-        }
 
         /**
-         * @return a default EventHandler which bind MainLooper;
+         * A default EventHandler which bind MainLooper
          */
-        @kotlin.jvm.JvmStatic
-        val default: EventHandler
-            get() = sDefault.getInstance()
+        val default by lazy {
+            EventHandler(Looper.getMainLooper())
+        }
+
     }
 }
