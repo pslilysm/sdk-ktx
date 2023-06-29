@@ -6,6 +6,7 @@ import com.tencent.mmkv.MMKV
 import pers.pslilysm.sdk_library.AppHolder
 import pers.pslilysm.sdk_library.util.*
 import pers.pslilysm.sdk_library.util.MMKVExtensions.decode
+import pers.pslilysm.sdk_library.util.concurrent.GlobalExecutors
 import java.util.*
 
 /**

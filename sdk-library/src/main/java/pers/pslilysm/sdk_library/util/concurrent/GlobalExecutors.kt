@@ -1,5 +1,7 @@
-package pers.pslilysm.sdk_library.util.concurrent;
+package pers.pslilysm.sdk_library.util.concurrent
 
+import android.os.Handler
+import android.os.Looper
 import pers.pslilysm.sdk_library.Singleton
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -92,10 +94,20 @@ object GlobalExecutors {
             }
         }
 
+    private val sMainHandler = Handler(Looper.getMainLooper())
+
+    private val sMainExecutor: Singleton<Executor> = object : Singleton<Executor>() {
+        override fun create(): Executor {
+            return Executor {
+                sMainHandler.post(it)
+            }
+        }
+    }
+
     /**
      * @return a global io executor, the core pool size is `cpu cores * 5`
      */
-    @kotlin.jvm.JvmStatic
+    @JvmStatic
     fun io(): ScheduledExecutorService {
         return sGlobalIOExecutor.getInstance()
     }
@@ -103,8 +115,15 @@ object GlobalExecutors {
     /**
      * @return a global compute executor, the core pool size is cpu cores
      */
-    @kotlin.jvm.JvmStatic
+    @JvmStatic
     fun compute(): ScheduledExecutorService {
         return sGlobalComputeExecutor.getInstance()
+    }
+
+    /**
+     * @return a global main executor, all runnable will run in main thread
+     */
+    fun main(): Executor {
+        return sMainExecutor.getInstance()
     }
 }

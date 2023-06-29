@@ -6,6 +6,6 @@ package pers.pslilysm.sdk_library.annotation
  * @author pslilysm
  * @since 1.0.0
  */
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
 annotation class GsonExclude

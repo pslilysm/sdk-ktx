@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk COMPILE_SDK as int
 
     defaultConfig {
-        minSdk 24
-        targetSdk 32
+        minSdk MIN_SDK as int
+        targetSdk TARGET_SDK as int
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -19,24 +19,25 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     buildFeatures {
         viewBinding true
     }
+    namespace 'pers.pslilysm.sdk_library'
 }
 
 dependencies {
 
-    compileOnly 'androidx.core:core-ktx:1.8.0'
-    compileOnly 'androidx.appcompat:appcompat:1.5.0'
+    compileOnly 'androidx.core:core-ktx:1.10.1'
+    compileOnly 'androidx.appcompat:appcompat:1.6.1'
 
-    compileOnly 'com.google.code.gson:gson:2.9.1'
-    compileOnly 'com.tencent:mmkv:1.2.13'
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+    compileOnly 'com.tencent:mmkv:1.2.16'
     compileOnly 'commons-io:commons-io:2.11.0'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
