@@ -15,7 +15,7 @@ import androidx.viewbinding.ViewBinding
  * @author pslilysm
  * @since 1.1.0
  */
-abstract class BaseDialog<VB: ViewBinding>(private val context: Context): DialogInterface {
+abstract class BaseDialog<VB : ViewBinding>(protected val context: Context) : DialogInterface {
 
     protected val mBinding: VB
     protected val mBuilder: AlertDialog.Builder
