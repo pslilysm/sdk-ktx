@@ -1,6 +1,5 @@
 # sdk-ktx
-A lightweight SDK used to assemble mvp and provide utils function
-Check out app module to know how to use.
+A lightweight SDK used to provide utils function and various extension
 
 ## usage
 
