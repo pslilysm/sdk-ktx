@@ -4,7 +4,7 @@ package pers.pslilysm.sdk_library.util.function
  * Represents a suspend function that produces a result.
  *
  * @param R return type of the function.
- * @author cxd
+ * @author pslilysm
  * Created on 2022/8/11 16:00
  */
 interface SuspendFunction<out R> {

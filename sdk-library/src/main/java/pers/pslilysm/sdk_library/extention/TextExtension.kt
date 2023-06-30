@@ -7,7 +7,7 @@ import android.content.Context
 /**
  * Extension for text
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 15:20
  * @since 2.2.0
  */

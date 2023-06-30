@@ -7,7 +7,7 @@ import java.util.Locale
 /**
  * Extension for format
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 14:54
  * @since 2.2.0
  */

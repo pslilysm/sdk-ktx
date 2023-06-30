@@ -3,7 +3,7 @@ package pers.pslilysm.sdk_library.ui.dialog
 /**
  * Interface that defines a dialog-type class that can be shown, dismissed.
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 14:42
  * @since 2.2.0
  */

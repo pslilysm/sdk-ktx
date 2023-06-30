@@ -8,7 +8,7 @@ import pers.pslilysm.sdk_library.util.concurrent.GlobalExecutors
 /**
  * Extension for toast
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 16:35
  * @since 2.2.0
  */

@@ -14,12 +14,10 @@ import pers.pslilysm.sdk_library.AppHolder
 /**
  * Extension for screen
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 16:39
  * @since 2.2.0
  */
-
-// TODO test the width function
 
 val isDarkMode: Boolean
     get() = (AppHolder.get().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -40,25 +38,31 @@ val statusBarHeight: Int
 val width: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            wm.currentWindowMetrics.bounds.width()
-        } else {
-            val dm = DisplayMetrics()
-            wm.defaultDisplay.getMetrics(dm)
-            dm.widthPixels
-        }
+//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            wm.currentWindowMetrics.bounds.width()
+//        } else {
+//            val dm = DisplayMetrics()
+//            wm.defaultDisplay.getMetrics(dm)
+//            dm.widthPixels
+//        }
+        val dm = DisplayMetrics()
+        wm.defaultDisplay.getMetrics(dm)
+        return dm.widthPixels
     }
 
 val height: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            wm.currentWindowMetrics.bounds.height()
-        } else {
-            val dm = DisplayMetrics()
-            wm.defaultDisplay.getMetrics(dm)
-            dm.heightPixels
-        }
+//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            wm.currentWindowMetrics.bounds.height()
+//        } else {
+//            val dm = DisplayMetrics()
+//            wm.defaultDisplay.getMetrics(dm)
+//            dm.heightPixels
+//        }
+        val dm = DisplayMetrics()
+        wm.defaultDisplay.getMetrics(dm)
+        return dm.heightPixels
     }
 
 val realWidth: Int

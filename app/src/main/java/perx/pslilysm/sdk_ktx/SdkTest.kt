@@ -4,6 +4,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.tencent.mmkv.MMKV
 import pers.pslilysm.sdk_library.AppHolder
+import pers.pslilysm.sdk_library.extention.checkIsMainThread
 import pers.pslilysm.sdk_library.extention.decrypt
 import pers.pslilysm.sdk_library.extention.encrypt
 import pers.pslilysm.sdk_library.extention.pattern_00DecimalFormat
@@ -12,14 +13,13 @@ import pers.pslilysm.sdk_library.extention.showLongToast
 import pers.pslilysm.sdk_library.extention.showShortToast
 import pers.pslilysm.sdk_library.extention.toJson
 import pers.pslilysm.sdk_library.extention.toMap
-import pers.pslilysm.sdk_library.util.ThreadUtil
 import pers.pslilysm.sdk_library.util.concurrent.GlobalExecutors
 import java.util.Date
 
 /**
  *
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2022/8/16 10:25
  */
 object SdkTest {
@@ -51,7 +51,7 @@ object SdkTest {
         GlobalExecutors.io.execute {
             Log.i(TAG, "test: run")
         }
-        ThreadUtil.checkIsMainThread()
+        checkIsMainThread()
         GlobalExecutors.io.execute {
             "sdk test1".showShortToast()
             SystemClock.sleep(1000)
