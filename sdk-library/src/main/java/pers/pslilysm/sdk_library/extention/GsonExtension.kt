@@ -15,7 +15,7 @@ import pers.pslilysm.sdk_library.util.reflection.ReflectionUtil
 /**
  * Extension for gson
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 17:02
  * @since 2.2.0
  */

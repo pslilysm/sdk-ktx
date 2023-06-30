@@ -9,7 +9,7 @@ import kotlin.math.sin
 /**
  * Extension for math
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 14:59
  * @since 2.2.0
  */

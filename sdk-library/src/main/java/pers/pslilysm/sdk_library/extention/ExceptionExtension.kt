@@ -3,7 +3,7 @@ package pers.pslilysm.sdk_library.extention
 /**
  * Extension for exception
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 16:24
  * @since 2.2.0
  */

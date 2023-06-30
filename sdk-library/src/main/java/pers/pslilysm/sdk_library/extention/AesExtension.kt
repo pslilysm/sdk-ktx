@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * Extension for AES
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 15:57
  * @since 2.2.0
  */

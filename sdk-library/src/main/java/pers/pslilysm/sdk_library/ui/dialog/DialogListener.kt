@@ -3,7 +3,7 @@ package pers.pslilysm.sdk_library.ui.dialog
 /**
  * Interface definition for a callback to be invoked when a dialog event trigger
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 14:43
  * @since 2.2.0
  */

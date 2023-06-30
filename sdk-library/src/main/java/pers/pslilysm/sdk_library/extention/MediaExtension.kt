@@ -11,7 +11,6 @@ import android.provider.MediaStore
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import pers.pslilysm.sdk_library.AppHolder
-import pers.pslilysm.sdk_library.util.ThreadUtil
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -21,7 +20,7 @@ import java.util.concurrent.CountDownLatch
 /**
  * Extension for media
  *
- * @author cxd
+ * @author pslilysm
  * Created on 2023/06/29 15:09
  * @since 2.2.0
  */
@@ -31,11 +30,11 @@ import java.util.concurrent.CountDownLatch
  *
  * @return The media's uri if success or null
  */
-fun Bitmap.save2MediaStoreAsImage(context: Context, displayName: String): Uri? {
+fun Bitmap.save2MediaStoreAsImage(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
     val bos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.PNG, 100, bos)
     val bin = ByteArrayInputStream(bos.toByteArray())
-    return bin.save2MediaStoreAsImage(context, displayName)
+    return bin.save2MediaStoreAsImage(context, relativePath, displayName)
 }
 
 /**
@@ -43,8 +42,8 @@ fun Bitmap.save2MediaStoreAsImage(context: Context, displayName: String): Uri? {
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsImage(context: Context, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, Environment.DIRECTORY_DCIM + File.separator + "dashen", MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsImage(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -52,8 +51,8 @@ fun InputStream.save2MediaStoreAsImage(context: Context, displayName: String): U
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsAudio(context: Context, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, Environment.DIRECTORY_MUSIC + File.separator + "dashen", MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsAudio(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -61,8 +60,8 @@ fun InputStream.save2MediaStoreAsAudio(context: Context, displayName: String): U
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsVideo(context: Context, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, Environment.DIRECTORY_DCIM + File.separator + "dashen", MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsVideo(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -71,7 +70,7 @@ fun InputStream.save2MediaStoreAsVideo(context: Context, displayName: String): U
  * @return The media's uri if success or null
  */
 fun InputStream.save2MediaStore(context: Context, displayName: String, relativePath: String, mediaExternalUri: Uri): Uri? {
-    ThreadUtil.throwIfMainThread()
+    throwIfMainThread()
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentResolver = context.contentResolver
         val contentValues = ContentValues()
