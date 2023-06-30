@@ -27,7 +27,8 @@ dependencyResolutionManagement {
 ```groovy
 dependencies {
     // add sdk-ktx to your dependencies
-    implementation 'com.github.pslilysm:sdk-ktx:2.2.1'
+    // proguard bundled in aar
+    implementation 'com.github.pslilysm:sdk-ktx:2.2.2'
 }
 ```
 
