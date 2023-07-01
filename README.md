@@ -1,5 +1,6 @@
 # sdk-ktx
-A lightweight SDK used to provide utils function and various extension
+A lightweight SDK for Android used to provide utils function and various extension.  
+Only support for Kotlin.
 
 ## usage
 

@@ -14,14 +14,16 @@ import pers.pslilysm.sdk_library.util.reflection.ReflectionUtil
  * @since 2.2.0
  */
 
-val sViewPager2Finder: FragmentFinder = object : FragmentFinder {
-    override fun <T : Fragment?> findFragment(
-        fmtClass: Class<out Fragment?>,
-        vararg args: Any?
-    ): T? {
-        val manager = args[0] as FragmentManager
-        val position = args[1] as Int
-        return manager.findFragmentByTag("f$position") as T?
+val sViewPager2Finder: FragmentFinder by lazy {
+    object : FragmentFinder {
+        override fun <T : Fragment?> findFragment(
+            fmtClass: Class<out Fragment?>,
+            vararg args: Any?
+        ): T? {
+            val manager = args[0] as FragmentManager
+            val position = args[1] as Int
+            return manager.findFragmentByTag("f$position") as T?
+        }
     }
 }
 

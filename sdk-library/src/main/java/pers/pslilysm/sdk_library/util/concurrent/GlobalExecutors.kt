@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object GlobalExecutors {
     private val sIONum = AtomicInteger()
     private val sComputeNum = AtomicInteger()
-    private val lazyGlobalIOExecutor by lazy {
+    private val sIOExecutor by lazy {
         val corePoolSize = 1
         val maxPoolSize = Runtime.getRuntime().availableProcessors() * 10
         val keepAliveTimeSeconds = 2
@@ -56,7 +56,7 @@ object GlobalExecutors {
         workQueue.setExecutor(ioES)
         ScheduledThreadPoolExecutorWrapper(ioES)
     }
-    private val lazyGlobalComputeExecutor by lazy {
+    private val sComputeExecutor by lazy {
         val corePoolSize = 1
         val maxPoolSize = Runtime.getRuntime().availableProcessors()
         val keepAliveTimeSeconds = 2
@@ -104,12 +104,12 @@ object GlobalExecutors {
     /**
      * @return a global io executor, the core pool size is `cpu cores * 5`
      */
-    val io: ScheduledExecutorService get() = lazyGlobalIOExecutor
+    val io: ScheduledExecutorService get() = sIOExecutor
 
     /**
      * @return a global compute executor, the core pool size is cpu cores
      */
-    val compute: ScheduledExecutorService get() = lazyGlobalComputeExecutor
+    val compute: ScheduledExecutorService get() = sComputeExecutor
 
     /**
      * @return a global main executor, all runnable will run in main thread

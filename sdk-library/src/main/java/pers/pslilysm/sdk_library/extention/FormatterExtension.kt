@@ -20,45 +20,54 @@ const val MB_SIZE = 1024f * 1024
 
 const val KB_SIZE = 1024
 
-private val sDateFormatTLS: ThreadLocal<SimpleDateFormat> =
+private val sDateFormatTLS: ThreadLocal<SimpleDateFormat> by lazy {
     object : ThreadLocal<SimpleDateFormat>() {
         override fun initialValue(): SimpleDateFormat {
             return SimpleDateFormat("", Locale.getDefault())
         }
     }
-private val sDecimalFormatTLS: ThreadLocal<DecimalFormat> =
+}
+
+private val sDecimalFormatTLS: ThreadLocal<DecimalFormat> by lazy {
     object : ThreadLocal<DecimalFormat>() {
         override fun initialValue(): DecimalFormat {
             return DecimalFormat()
         }
     }
+}
 
 val simpleDateFormat: SimpleDateFormat get() = sDateFormatTLS.get() as SimpleDateFormat
 val decimalFormat: DecimalFormat get() = sDecimalFormatTLS.get() as DecimalFormat
 
-val pattern_yyyyMMddHHmmssDateFormat: SimpleDateFormat get() = simpleDateFormat.apply {
-    applyPattern("yyyy-MM-dd HH:mm:ss")
-}
+val pattern_yyyyMMddHHmmssDateFormat: SimpleDateFormat
+    get() = simpleDateFormat.apply {
+        applyPattern("yyyy-MM-dd HH:mm:ss")
+    }
 
-val pattern_MMddDateFormat: SimpleDateFormat get() = simpleDateFormat.apply {
-    applyPattern("MM-dd")
-}
+val pattern_MMddDateFormat: SimpleDateFormat
+    get() = simpleDateFormat.apply {
+        applyPattern("MM-dd")
+    }
 
-val pattern_HHmmssDateFormat: SimpleDateFormat get() = simpleDateFormat.apply {
-    applyPattern("HH:mm:ss")
-}
+val pattern_HHmmssDateFormat: SimpleDateFormat
+    get() = simpleDateFormat.apply {
+        applyPattern("HH:mm:ss")
+    }
 
-val pattern_000DecimalFormat: DecimalFormat get() = decimalFormat.apply {
-    applyPattern("#.000")
-}
+val pattern_000DecimalFormat: DecimalFormat
+    get() = decimalFormat.apply {
+        applyPattern("#.000")
+    }
 
-val pattern_00DecimalFormat: DecimalFormat get() = decimalFormat.apply {
-    applyPattern("#.00")
-}
+val pattern_00DecimalFormat: DecimalFormat
+    get() = decimalFormat.apply {
+        applyPattern("#.00")
+    }
 
-val pattern_0DecimalFormat: DecimalFormat get() = decimalFormat.apply {
-    applyPattern("#.0")
-}
+val pattern_0DecimalFormat: DecimalFormat
+    get() = decimalFormat.apply {
+        applyPattern("#.0")
+    }
 
 /**
  * @return A formatted file size string with pattern "#.00"
