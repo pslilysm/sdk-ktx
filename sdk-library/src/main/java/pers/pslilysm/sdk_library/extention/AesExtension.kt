@@ -2,6 +2,8 @@ package pers.pslilysm.sdk_library.extention
 
 import android.util.Base64
 import java.nio.charset.StandardCharsets
+import java.security.Key
+import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -82,18 +84,14 @@ fun String.decrypt(): String {
  *
  * @param mode The name of the cipher mode, e.g.,
  * <i>DES/CBC/PKCS5Padding</i>.
- * @param secretKey The secret key
- * @param ivKey The iv key
+ * @param key The encryption key
+ * @param params The algorithm parameters
  * @return A encrypted Base64 String
  */
-fun String.encrypt(mode: String, secretKey: String, ivKey: String): String {
+fun String.encrypt(mode: String, key: Key, params: AlgorithmParameterSpec): String {
     return try {
         val cipher = Cipher.getInstance(mode)
-        cipher.init(
-            Cipher.ENCRYPT_MODE,
-            SecretKeySpec(secretKey.toByteArray(), "AES"),
-            IvParameterSpec(ivKey.toByteArray())
-        )
+        cipher.init(Cipher.ENCRYPT_MODE, key, params)
         val bytes = cipher.doFinal(toByteArray(StandardCharsets.UTF_8))
         Base64.encodeToString(bytes, Base64.NO_WRAP)
     } catch (e: Exception) {
@@ -106,18 +104,14 @@ fun String.encrypt(mode: String, secretKey: String, ivKey: String): String {
  *
  * @param mode The name of the cipher mode, e.g.,
  * <i>DES/CBC/PKCS5Padding</i>.
- * @param secretKey The secret key
- * @param ivKey The iv key
+ * @param key The encryption key
+ * @param params The algorithm parameters
  * @return A decrypted Base64 String
  */
-fun String.decrypt(mode: String, secretKey: String, ivKey: String): String {
+fun String.decrypt(mode: String, key: Key, params: AlgorithmParameterSpec): String {
     return try {
         val cipher = Cipher.getInstance(mode)
-        cipher.init(
-            Cipher.DECRYPT_MODE,
-            SecretKeySpec(secretKey.toByteArray(), "AES"),
-            IvParameterSpec(ivKey.toByteArray())
-        )
+        cipher.init(Cipher.DECRYPT_MODE, key, params)
         String(cipher.doFinal(Base64.decode(this, Base64.NO_WRAP)), StandardCharsets.UTF_8)
     } catch (e: Exception) {
         throw e.rethrow()

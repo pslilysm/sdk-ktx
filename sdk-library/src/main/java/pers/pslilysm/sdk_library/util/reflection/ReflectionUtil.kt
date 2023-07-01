@@ -15,9 +15,9 @@ import java.util.*
  * @since 1.0.0
  */
 object ReflectionUtil {
-    private val sConstructors: MutableMap<ConstructorKey, Constructor<*>> = ArrayMap()
-    private val sFields: MutableMap<FieldKey, Field> = ArrayMap()
-    private val sMethods: MutableMap<MethodKey, Method> = ArrayMap()
+    private val sConstructors: MutableMap<ConstructorKey, Constructor<*>> by lazy { ArrayMap() }
+    private val sFields: MutableMap<FieldKey, Field> by lazy { ArrayMap() }
+    private val sMethods: MutableMap<MethodKey, Method> by lazy { ArrayMap() }
     private val sEmptyParameterTypesAndArgs = emptyArray<Any>()
 
     /**
@@ -51,9 +51,11 @@ object ReflectionUtil {
                 is String -> {
                     parameterTypes[i] = classLoader.loadClass(pt)
                 }
+
                 is Class<*> -> {
                     parameterTypes[i] = pt
                 }
+
                 else -> {
                     throw IllegalArgumentException("check your parameterTypes at pos " + i + ", type is " + pt!!.javaClass)
                 }

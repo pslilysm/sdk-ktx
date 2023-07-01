@@ -20,26 +20,32 @@ import pers.pslilysm.sdk_library.util.reflection.ReflectionUtil
  * @since 2.2.0
  */
 
-private val strategy: ExclusionStrategy = object : ExclusionStrategy {
-    override fun shouldSkipField(f: FieldAttributes): Boolean {
-        return f.getAnnotation(GsonExclude::class.java) != null
-    }
+private val strategy: ExclusionStrategy by lazy {
+    object : ExclusionStrategy {
+        override fun shouldSkipField(f: FieldAttributes): Boolean {
+            return f.getAnnotation(GsonExclude::class.java) != null
+        }
 
-    override fun shouldSkipClass(clazz: Class<*>): Boolean {
-        return clazz.getAnnotation(GsonExclude::class.java) != null
+        override fun shouldSkipClass(clazz: Class<*>): Boolean {
+            return clazz.getAnnotation(GsonExclude::class.java) != null
+        }
     }
 }
 
-private val sPrettyGson: Gson = GsonBuilder()
-    .setPrettyPrinting()
-    .disableHtmlEscaping()
-    .setExclusionStrategies(strategy)
-    .create()
+private val sPrettyGson: Gson by lazy {
+    GsonBuilder()
+        .setPrettyPrinting()
+        .disableHtmlEscaping()
+        .setExclusionStrategies(strategy)
+        .create()
+}
 
-private val sGson: Gson = GsonBuilder()
-    .disableHtmlEscaping()
-    .setExclusionStrategies(strategy)
-    .create()
+private val sGson: Gson by lazy {
+    GsonBuilder()
+        .disableHtmlEscaping()
+        .setExclusionStrategies(strategy)
+        .create()
+}
 
 /**
  * Serialize object to json

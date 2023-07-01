@@ -1,5 +1,6 @@
 # sdk-ktx
-A lightweight SDK used to provide utils function and various extension
+A lightweight SDK for Android used to provide utils function and various extension.  
+Only support for Kotlin.
 
 ## usage
 
@@ -27,7 +28,7 @@ dependencyResolutionManagement {
 dependencies {
     // add sdk-ktx to your dependencies
     // proguard bundled in aar
-    implementation 'com.github.pslilysm:sdk-ktx:2.2.2'
+    implementation 'com.github.pslilysm:sdk-ktx:2.2.3'
 }
 ```
 
