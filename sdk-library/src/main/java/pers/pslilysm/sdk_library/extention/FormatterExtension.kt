@@ -20,7 +20,7 @@ const val MB_SIZE = 1024f * 1024
 
 const val KB_SIZE = 1024
 
-private val sDateFormatTLS: ThreadLocal<SimpleDateFormat> by lazy {
+private val dateFormatTLS: ThreadLocal<SimpleDateFormat> by lazy {
     object : ThreadLocal<SimpleDateFormat>() {
         override fun initialValue(): SimpleDateFormat {
             return SimpleDateFormat("", Locale.getDefault())
@@ -28,7 +28,7 @@ private val sDateFormatTLS: ThreadLocal<SimpleDateFormat> by lazy {
     }
 }
 
-private val sDecimalFormatTLS: ThreadLocal<DecimalFormat> by lazy {
+private val decimalFormatTLS: ThreadLocal<DecimalFormat> by lazy {
     object : ThreadLocal<DecimalFormat>() {
         override fun initialValue(): DecimalFormat {
             return DecimalFormat()
@@ -36,12 +36,12 @@ private val sDecimalFormatTLS: ThreadLocal<DecimalFormat> by lazy {
     }
 }
 
-val simpleDateFormat: SimpleDateFormat get() = sDateFormatTLS.get() as SimpleDateFormat
-val decimalFormat: DecimalFormat get() = sDecimalFormatTLS.get() as DecimalFormat
+val simpleDateFormat: SimpleDateFormat get() = dateFormatTLS.get() as SimpleDateFormat
+val decimalFormat: DecimalFormat get() = decimalFormatTLS.get() as DecimalFormat
 
 val pattern_yyyyMMddHHmmssDateFormat: SimpleDateFormat
     get() = simpleDateFormat.apply {
-        applyPattern("yyyy-MM-dd HH:mm:ss")
+        applyPattern("yyyy-MM-dd HH-mm-ss")
     }
 
 val pattern_MMddDateFormat: SimpleDateFormat
@@ -54,19 +54,19 @@ val pattern_HHmmssDateFormat: SimpleDateFormat
         applyPattern("HH:mm:ss")
     }
 
-val pattern_000DecimalFormat: DecimalFormat
+val pattern_0d000DecimalFormat: DecimalFormat
     get() = decimalFormat.apply {
-        applyPattern("#.000")
+        applyPattern("0.000")
     }
 
-val pattern_00DecimalFormat: DecimalFormat
+val pattern_0d00DecimalFormat: DecimalFormat
     get() = decimalFormat.apply {
-        applyPattern("#.00")
+        applyPattern("0.00")
     }
 
-val pattern_0DecimalFormat: DecimalFormat
+val pattern_0d0DecimalFormat: DecimalFormat
     get() = decimalFormat.apply {
-        applyPattern("#.0")
+        applyPattern("0.0")
     }
 
 /**
@@ -74,11 +74,11 @@ val pattern_0DecimalFormat: DecimalFormat
  */
 fun Long.autoFormatFileSize(): String {
     return if (this > TB_SIZE) {
-        pattern_00DecimalFormat.format(this / (TB_SIZE)) + " TB"
+        pattern_0d00DecimalFormat.format(this / (TB_SIZE)) + " TB"
     } else if (this > GB_SIZE) {
-        pattern_00DecimalFormat.format(this / (GB_SIZE)) + " GB"
+        pattern_0d00DecimalFormat.format(this / (GB_SIZE)) + " GB"
     } else if (this > MB_SIZE) {
-        pattern_00DecimalFormat.format(this / (MB_SIZE)) + " MB"
+        pattern_0d00DecimalFormat.format(this / (MB_SIZE)) + " MB"
     } else if (this > KB_SIZE) {
         (this / KB_SIZE).toString() + " KB"
     } else {

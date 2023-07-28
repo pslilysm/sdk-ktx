@@ -19,7 +19,7 @@ import pers.pslilysm.sdk_library.AppHolder
  * @since 2.2.0
  */
 
-val isDarkMode: Boolean
+val darkMode: Boolean
     get() = (AppHolder.get().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             == Configuration.UI_MODE_NIGHT_YES)
 
@@ -35,7 +35,7 @@ val statusBarHeight: Int
         return result
     }
 
-val width: Int
+val screenWidth: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -50,7 +50,7 @@ val width: Int
         return dm.widthPixels
     }
 
-val height: Int
+val screenHeight: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -65,7 +65,7 @@ val height: Int
         return dm.heightPixels
     }
 
-val realWidth: Int
+val screenRealWidth: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -77,7 +77,7 @@ val realWidth: Int
         }
     }
 
-val realHeight: Int
+val screenRealHeight: Int
     get() {
         val wm = AppHolder.get().getSystemService(WindowManager::class.java)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

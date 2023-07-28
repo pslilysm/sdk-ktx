@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 /**
  * Extension for view
@@ -78,4 +80,18 @@ fun View.setStatusBarPadding() {
  */
 fun View.finishActivityWhenClick() {
     this.setOnClickListener(sFinishListener)
+}
+
+/**
+ * @return The height of ime
+ */
+fun View.getImeHeight(): Int {
+    return ViewCompat.getRootWindowInsets(this)?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+}
+
+/**
+ * @return True if ime is visible
+ */
+fun View.isImeVisible(): Boolean {
+    return ViewCompat.getRootWindowInsets(this)?.isVisible(WindowInsetsCompat.Type.ime()) == true
 }
