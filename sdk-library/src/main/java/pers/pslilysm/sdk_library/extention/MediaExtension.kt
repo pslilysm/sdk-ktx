@@ -29,9 +29,14 @@ import java.util.concurrent.CountDownLatch
  * @since 2.2.0
  */
 
-fun File.save2MediaStoreAsImage(context: Context, displayName: String, alternativeDisplayName: String? = null): Uri? {
+fun File.save2MediaStoreAsImage(
+    context: Context,
+    relativePath: String = Environment.DIRECTORY_DCIM,
+    displayName: String,
+    alternativeDisplayName: String? = null
+): Uri? {
     return try {
-        FileInputStream(this).save2MediaStoreAsImage(context, displayName = displayName, alternativeDisplayName = alternativeDisplayName)
+        FileInputStream(this).save2MediaStoreAsImage(context, relativePath, displayName, alternativeDisplayName)
     } catch (e: IOException) {
         null
     }
@@ -119,7 +124,7 @@ fun InputStream.save2MediaStore(
         var result: Uri? = null
         val countDownLatch = CountDownLatch(1)
         val outFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
-            .addTimesIfExit(alternativeDisplayName = alternativeDisplayName)
+            .addTimesIfExit(alternativeDisplayName = alternativeDisplayName) ?: return null
         FileUtils.forceMkdirParent(outFile)
         try {
             FileUtils.copyInputStreamToFile(this@save2MediaStore, outFile)
@@ -138,10 +143,14 @@ fun InputStream.save2MediaStore(
 /**
  * @return A file that are not duplicated on the disk
  */
-fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File {
+fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File? {
     try {
         return if (times >= 100) {
-            return File(parentFile, alternativeDisplayName ?: "${pattern_yyyyMMddHHmmssDateFormat.format(Date())}.$extension")
+            if (alternativeDisplayName.isNullOrEmpty()) {
+                null
+            } else {
+                File(parentFile, alternativeDisplayName)
+            }
         } else if (!createNewFile()) {
             val file = File(parentFile, "$nameWithoutExtension($times).$extension")
             if (!file.createNewFile()) {
@@ -153,7 +162,11 @@ fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File {
             this
         }
     } catch (e: IOException) {
-        return File(parentFile, alternativeDisplayName ?: "${pattern_yyyyMMddHHmmssDateFormat.format(Date())}.$extension")
+        return if (alternativeDisplayName.isNullOrEmpty()) {
+            null
+        } else {
+            File(parentFile, alternativeDisplayName)
+        }
     }
 }
 

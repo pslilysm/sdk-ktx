@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 dependencies {
     // add sdk-ktx to your dependencies
     // proguard bundled in aar
-    implementation 'com.github.pslilysm:sdk-ktx:2.2.5'
+    implementation 'com.github.pslilysm:sdk-ktx:2.2.7'
 }
 ```
 
