@@ -32,7 +32,7 @@ private val strategy: ExclusionStrategy by lazy {
     }
 }
 
-private val sPrettyGson: Gson by lazy {
+val prettyGson: Gson by lazy {
     GsonBuilder()
         .setPrettyPrinting()
         .disableHtmlEscaping()
@@ -40,7 +40,7 @@ private val sPrettyGson: Gson by lazy {
         .create()
 }
 
-private val sGson: Gson by lazy {
+val gson: Gson by lazy {
     GsonBuilder()
         .disableHtmlEscaping()
         .setExclusionStrategies(strategy)
@@ -54,7 +54,7 @@ private val sGson: Gson by lazy {
  * @return json string
  */
 fun Any?.toJson(pretty: Boolean = false): String {
-    return if (pretty) sPrettyGson.toJson(this) else sGson.toJson(this)
+    return if (pretty) prettyGson.toJson(this) else gson.toJson(this)
 }
 
 /**
@@ -66,7 +66,7 @@ fun Any?.toJson(pretty: Boolean = false): String {
  */
 
 fun <T> String?.toObject(tClass: Class<T>): T? {
-    return sGson.fromJson(this, tClass)
+    return gson.fromJson(this, tClass)
 }
 
 /**
@@ -82,7 +82,7 @@ fun <T> String?.toSet(tClass: Class<T>?): Set<T> {
     if (!isNullOrEmpty()) {
         val array = JsonParser.parseString(this).asJsonArray
         for (elem in array) {
-            set.add(sGson.fromJson(elem, tClass))
+            set.add(gson.fromJson(elem, tClass))
         }
     }
     return set
@@ -101,7 +101,7 @@ fun <T> String?.toList(tClass: Class<T>?): MutableList<T> {
     if (!isNullOrEmpty()) {
         val array = JsonParser.parseString(this).asJsonArray
         for (elem in array) {
-            list.add(sGson.fromJson(elem, tClass))
+            list.add(gson.fromJson(elem, tClass))
         }
     }
     return list
@@ -119,14 +119,14 @@ fun <V> String?.toMap(vClass: Class<V>?): MutableMap<String, V> {
     if (isNullOrEmpty()) {
         return result
     }
-    val jsonObject = sGson.fromJson(this, JsonObject::class.java)
+    val jsonObject = gson.fromJson(this, JsonObject::class.java)
     try {
         val members = ReflectionUtil.getFieldValue<LinkedTreeMap<String, JsonElement>>(
             jsonObject,
             "members"
         )
         members!!.forEach { (s: String, jsonElement: JsonElement?) ->
-            result[s] = sGson.fromJson(jsonElement, vClass)
+            result[s] = gson.fromJson(jsonElement, vClass)
         }
     } catch (e: ReflectiveOperationException) {
         // never happen
@@ -143,5 +143,5 @@ fun <V> String?.toMap(vClass: Class<V>?): MutableMap<String, V> {
 
 fun String?.prettyJson(): String {
     val je = JsonParser.parseString(this)
-    return sPrettyGson.toJson(je)
+    return prettyGson.toJson(je)
 }

@@ -7,6 +7,7 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.SystemClock
 import android.provider.MediaStore
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
@@ -14,7 +15,10 @@ import pers.pslilysm.sdk_library.AppHolder
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStream
+import java.util.Date
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -25,16 +29,12 @@ import java.util.concurrent.CountDownLatch
  * @since 2.2.0
  */
 
-/**
- * Save the picture to gallery via Bitmap
- *
- * @return The media's uri if success or null
- */
-fun Bitmap.save2MediaStoreAsImage(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
-    val bos = ByteArrayOutputStream()
-    this.compress(Bitmap.CompressFormat.PNG, 100, bos)
-    val bin = ByteArrayInputStream(bos.toByteArray())
-    return bin.save2MediaStoreAsImage(context, relativePath, displayName)
+fun File.save2MediaStoreAsImage(context: Context, displayName: String, alternativeDisplayName: String? = null): Uri? {
+    return try {
+        FileInputStream(this).save2MediaStoreAsImage(context, displayName = displayName, alternativeDisplayName = alternativeDisplayName)
+    } catch (e: IOException) {
+        null
+    }
 }
 
 /**
@@ -42,8 +42,13 @@ fun Bitmap.save2MediaStoreAsImage(context: Context, relativePath: String = Envir
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsImage(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsImage(
+    context: Context,
+    relativePath: String = Environment.DIRECTORY_DCIM,
+    displayName: String,
+    alternativeDisplayName: String? = null
+): Uri? {
+    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -51,8 +56,13 @@ fun InputStream.save2MediaStoreAsImage(context: Context, relativePath: String = 
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsAudio(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsAudio(
+    context: Context,
+    relativePath: String = Environment.DIRECTORY_DCIM,
+    displayName: String,
+    alternativeDisplayName: String? = null
+): Uri? {
+    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -60,8 +70,13 @@ fun InputStream.save2MediaStoreAsAudio(context: Context, relativePath: String = 
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStoreAsVideo(context: Context, relativePath: String = Environment.DIRECTORY_DCIM, displayName: String): Uri? {
-    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+fun InputStream.save2MediaStoreAsVideo(
+    context: Context,
+    relativePath: String = Environment.DIRECTORY_DCIM,
+    displayName: String,
+    alternativeDisplayName: String? = null
+): Uri? {
+    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
@@ -69,7 +84,13 @@ fun InputStream.save2MediaStoreAsVideo(context: Context, relativePath: String = 
  *
  * @return The media's uri if success or null
  */
-fun InputStream.save2MediaStore(context: Context, displayName: String, relativePath: String, mediaExternalUri: Uri): Uri? {
+fun InputStream.save2MediaStore(
+    context: Context,
+    displayName: String,
+    alternativeDisplayName: String?,
+    relativePath: String,
+    mediaExternalUri: Uri
+): Uri? {
     throwIfMainThread()
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentResolver = context.contentResolver
@@ -86,15 +107,19 @@ fun InputStream.save2MediaStore(context: Context, displayName: String, relativeP
                         IOUtils.copy(`is`, os)
                     }
                 }
-            } catch (e: Exception) {
-                return null
+            } catch (_: Exception) {
             }
         }
-        return uri
+        return if (uri == null && !alternativeDisplayName.isNullOrEmpty()) {
+            save2MediaStore(context, alternativeDisplayName, null, relativePath, mediaExternalUri)
+        } else {
+            uri
+        }
     } else {
         var result: Uri? = null
         val countDownLatch = CountDownLatch(1)
-        val outFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName).addTimesIfExit()
+        val outFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
+            .addTimesIfExit(alternativeDisplayName = alternativeDisplayName)
         FileUtils.forceMkdirParent(outFile)
         try {
             FileUtils.copyInputStreamToFile(this@save2MediaStore, outFile)
@@ -113,15 +138,46 @@ fun InputStream.save2MediaStore(context: Context, displayName: String, relativeP
 /**
  * @return A file that are not duplicated on the disk
  */
-fun File.addTimesIfExit(times: Int = 1): File {
-    return if (exists()) {
-        val file = File(parentFile, "$nameWithoutExtension($times).$extension")
-        if (file.exists()) {
-            addTimesIfExit(times + 1)
+fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File {
+    try {
+        return if (times >= 100) {
+            return File(parentFile, alternativeDisplayName ?: "${pattern_yyyyMMddHHmmssDateFormat.format(Date())}.$extension")
+        } else if (!createNewFile()) {
+            val file = File(parentFile, "$nameWithoutExtension($times).$extension")
+            if (!file.createNewFile()) {
+                addTimesIfExit(times + 1, alternativeDisplayName)
+            } else {
+                file
+            }
         } else {
-            file
+            this
         }
-    } else {
-        this
+    } catch (e: IOException) {
+        return File(parentFile, alternativeDisplayName ?: "${pattern_yyyyMMddHHmmssDateFormat.format(Date())}.$extension")
     }
+}
+
+/**
+ * @return A new cache file copied by the uri
+ */
+@Throws(IOException::class)
+fun Uri.copyToNewCacheFile(): File {
+    throwIfMainThread()
+    AppHolder.get().openUriInputStreamSafety(this).use { `is` ->
+        if (`is` == null) {
+            throw IOException("InputStream is null, the uri is $this")
+        }
+        val newCacheFile = File(AppHolder.get().cacheDir, SystemClock.elapsedRealtimeNanos().toString())
+        FileUtils.copyInputStreamToFile(`is`, newCacheFile)
+        return newCacheFile
+    }
+}
+
+/**
+ * Convert bitmap to [ByteArrayInputStream]
+ */
+fun Bitmap.toInputStream(): InputStream {
+    val bos = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.PNG, 100, bos)
+    return ByteArrayInputStream(bos.toByteArray())
 }
