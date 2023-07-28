@@ -29,9 +29,14 @@ import java.util.concurrent.CountDownLatch
  * @since 2.2.0
  */
 
-fun File.save2MediaStoreAsImage(context: Context, displayName: String, alternativeDisplayName: String? = null): Uri? {
+fun File.save2MediaStoreAsImage(
+    context: Context,
+    relativePath: String = Environment.DIRECTORY_DCIM,
+    displayName: String,
+    alternativeDisplayName: String? = null
+): Uri? {
     return try {
-        FileInputStream(this).save2MediaStoreAsImage(context, displayName = displayName, alternativeDisplayName = alternativeDisplayName)
+        FileInputStream(this).save2MediaStoreAsImage(context, relativePath, displayName, alternativeDisplayName)
     } catch (e: IOException) {
         null
     }
