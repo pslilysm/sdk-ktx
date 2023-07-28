@@ -123,9 +123,9 @@ fun InputStream.save2MediaStore(
     } else {
         var result: Uri? = null
         val countDownLatch = CountDownLatch(1)
-        val outFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
-            .addTimesIfExit(alternativeDisplayName = alternativeDisplayName) ?: return null
-        FileUtils.forceMkdirParent(outFile)
+        val originalOutFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
+        FileUtils.forceMkdirParent(originalOutFile)
+        val outFile = originalOutFile.addTimesIfExit(alternativeDisplayName = alternativeDisplayName) ?: return null
         try {
             FileUtils.copyInputStreamToFile(this@save2MediaStore, outFile)
             MediaScannerConnection.scanFile(AppHolder.get(), arrayOf(outFile.absolutePath), null) { _, uri ->
