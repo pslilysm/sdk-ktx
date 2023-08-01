@@ -18,9 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * @since 1.0.0
  */
 object GlobalExecutors {
-    private val sIONum = AtomicInteger()
-    private val sComputeNum = AtomicInteger()
-    private val sIOExecutor by lazy {
+    private val ioNum = AtomicInteger()
+    private val computeNum = AtomicInteger()
+    private val ioExecutor by lazy {
         val corePoolSize = 1
         val maxPoolSize = Runtime.getRuntime().availableProcessors() * 10
         val keepAliveTimeSeconds = 2
@@ -30,7 +30,7 @@ object GlobalExecutors {
             ThreadFactory { r: Runnable? ->
                 Thread(
                     r,
-                    "g-io-" + sIONum.incrementAndGet() + "-thread"
+                    "g-io-" + ioNum.incrementAndGet() + "-thread"
                 )
             }
         val rejectedExecutionHandler =
@@ -56,7 +56,7 @@ object GlobalExecutors {
         workQueue.setExecutor(ioES)
         ScheduledThreadPoolExecutorWrapper(ioES)
     }
-    private val sComputeExecutor by lazy {
+    private val computeExecutor by lazy {
         val corePoolSize = 1
         val maxPoolSize = Runtime.getRuntime().availableProcessors()
         val keepAliveTimeSeconds = 2
@@ -66,7 +66,7 @@ object GlobalExecutors {
             ThreadFactory { r: Runnable? ->
                 Thread(
                     r,
-                    "g-compute-" + sComputeNum.incrementAndGet() + "-thread"
+                    "g-compute-" + computeNum.incrementAndGet() + "-thread"
                 )
             }
         val rejectedExecutionHandler =
@@ -104,12 +104,12 @@ object GlobalExecutors {
     /**
      * @return a global io executor, the core pool size is `cpu cores * 5`
      */
-    val io: ScheduledExecutorService get() = sIOExecutor
+    val io: ScheduledExecutorService get() = ioExecutor
 
     /**
      * @return a global compute executor, the core pool size is cpu cores
      */
-    val compute: ScheduledExecutorService get() = sComputeExecutor
+    val compute: ScheduledExecutorService get() = computeExecutor
 
     /**
      * @return a global main executor, all runnable will run in main thread

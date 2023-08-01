@@ -12,8 +12,8 @@ import java.util.concurrent.locks.LockSupport
  * @since 1.0.0
  */
 class ResourcePoolImpl<R> : ResourcePool<R?> {
-    val resourceQueue: Queue<R?> = ConcurrentLinkedQueue()
-    val waitQueue: Queue<Thread> = ConcurrentLinkedQueue()
+    private val resourceQueue: Queue<R?> = ConcurrentLinkedQueue()
+    private val waitQueue: Queue<Thread> = ConcurrentLinkedQueue()
     override val resource: R?
         get() {
             var r = resourceQueue.poll()

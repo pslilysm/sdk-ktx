@@ -11,21 +11,21 @@ import pers.pslilysm.sdk_library.util.reflection.ReflectionUtil
  */
 object AppHolder {
     @Volatile
-    private var sApplication: Application? = null
-    fun set(sApplication: Application?) {
-        AppHolder.sApplication = sApplication
+    private var application: Application? = null
+    fun set(application: Application?) {
+        AppHolder.application = application
     }
 
     fun get(): Application {
-        if (sApplication == null) {
+        if (application == null) {
             synchronized(AppHolder::class.java) {
-                if (sApplication == null) {
+                if (application == null) {
                     try {
                         val activityThread = ReflectionUtil.getStaticFieldValue<Any>(
                             "android.app.ActivityThread",
                             "sCurrentActivityThread"
                         )
-                        sApplication =
+                        application =
                             ReflectionUtil.getFieldValue(activityThread, "mInitialApplication")
                     } catch (e: ReflectiveOperationException) {
                         throw RuntimeException(
@@ -38,6 +38,6 @@ object AppHolder {
                 }
             }
         }
-        return sApplication!!
+        return application!!
     }
 }

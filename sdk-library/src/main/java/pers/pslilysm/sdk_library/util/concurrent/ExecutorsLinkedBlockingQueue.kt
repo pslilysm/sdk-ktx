@@ -11,20 +11,20 @@ import java.util.concurrent.ThreadPoolExecutor
  * Created on 2022/9/27 15:56
  */
 class ExecutorsLinkedBlockingQueue : LinkedBlockingQueue<Runnable?> {
-    private lateinit var mExecutor: ThreadPoolExecutor
+    private lateinit var executor: ThreadPoolExecutor
 
     constructor() : super()
     constructor(capacity: Int) : super(capacity)
     constructor(c: Collection<Runnable?>?) : super(c)
 
     fun setExecutor(executor: ThreadPoolExecutor) {
-        this.mExecutor = executor
+        this.executor = executor
     }
 
     override fun offer(e: Runnable?): Boolean {
-        Objects.requireNonNull(mExecutor, "please call setExecutor")
-        return if (mExecutor.poolSize < mExecutor.maximumPoolSize
-            && mExecutor.activeCount == mExecutor.poolSize
+        Objects.requireNonNull(executor, "please call setExecutor")
+        return if (executor.poolSize < executor.maximumPoolSize
+            && executor.activeCount == executor.poolSize
         ) {
             // if executor's pool size < max size
             // and all thread are executing

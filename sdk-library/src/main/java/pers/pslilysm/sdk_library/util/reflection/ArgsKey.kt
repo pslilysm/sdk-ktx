@@ -18,28 +18,28 @@ class ArgsKey private constructor(args: Array<out Any>) {
 
     fun recycle() {
         args = null
-        synchronized(sPoolLock) {
-            if (sMaxPoolSize > sPoolSize) {
-                next = sPool
-                sPool = this
-                sPoolSize++
+        synchronized(poolLock) {
+            if (maxPoolSize > poolSize) {
+                next = pool
+                pool = this
+                poolSize++
             }
         }
     }
 
     companion object {
-        private const val sMaxPoolSize = 10
-        private val sPoolLock = Any()
-        private var sPool: ArgsKey? = null
-        private var sPoolSize = 0
+        private const val maxPoolSize = 10
+        private val poolLock = Any()
+        private var pool: ArgsKey? = null
+        private var poolSize = 0
         fun obtain(vararg args: Any): ArgsKey {
-            synchronized(sPoolLock) {
-                if (sPool != null) {
-                    val argsKey = sPool
-                    sPool = argsKey!!.next
+            synchronized(poolLock) {
+                if (pool != null) {
+                    val argsKey = pool
+                    pool = argsKey!!.next
                     argsKey.next = null
                     argsKey.args = args
-                    sPoolSize--
+                    poolSize--
                     return argsKey
                 }
             }

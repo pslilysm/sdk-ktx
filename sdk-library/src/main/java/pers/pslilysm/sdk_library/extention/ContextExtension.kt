@@ -3,6 +3,11 @@ package pers.pslilysm.sdk_library.extention
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.annotation.RequiresPermission
 import java.io.InputStream
 
 /**
@@ -39,5 +44,20 @@ fun Context.openUriInputStreamSafety(uri: Uri): InputStream? {
         contentResolver.openInputStream(uri)
     } catch (e: Exception) {
         null
+    }
+}
+
+@RequiresPermission(android.Manifest.permission.VIBRATE)
+fun Context.vibrateWithDefaultEffective(milliseconds: Long = 2000L) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = getSystemService(VibratorManager::class.java)
+        vibratorManager.vibrate(CombinedVibration.createParallel(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE)))
+    } else {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(milliseconds)
+        }
     }
 }

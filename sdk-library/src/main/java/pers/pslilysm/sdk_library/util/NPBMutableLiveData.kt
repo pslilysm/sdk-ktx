@@ -19,10 +19,10 @@ import java.util.function.Consumer
  * @since 2.2.2
  */
 class NPBMutableLiveData<T> {
-    private val mObserverLiveDataMap: ConcurrentMap<Observer<T>, MutableLiveData<T>> = ConcurrentHashMap()
-    private var mValue: T? = null
+    private val observerLiveDataMap: ConcurrentMap<Observer<T>, MutableLiveData<T>> = ConcurrentHashMap()
+    private var value: T? = null
 
-    fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
+    fun observe(owner: LifecycleOwner, observer: Observer<T>) {
         checkIsMainThread()
         if (owner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
             // ignore
@@ -30,30 +30,30 @@ class NPBMutableLiveData<T> {
         }
         owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                mObserverLiveDataMap.remove(observer as Observer<T>)
+                observerLiveDataMap.remove(observer)
                 owner.lifecycle.removeObserver(this)
             }
         })
         val mutableLiveData = MutableLiveData<T>()
         mutableLiveData.observe(owner, observer)
-        mObserverLiveDataMap[observer as Observer<T>] = mutableLiveData
+        observerLiveDataMap[observer] = mutableLiveData
     }
 
-    fun observeForever(observer: Observer<in T>) {
+    fun observeForever(observer: Observer<T>) {
         checkIsMainThread()
         val mutableLiveData = MutableLiveData<T>()
-        mutableLiveData.observeForever(observer as Observer<T>)
-        mObserverLiveDataMap[observer] = mutableLiveData
+        mutableLiveData.observeForever(observer)
+        observerLiveDataMap[observer] = mutableLiveData
     }
 
     fun getValue(): T? {
-        return mValue
+        return value
     }
 
     fun setValue(value: T?) {
         checkIsMainThread()
-        mValue = value
-        mObserverLiveDataMap.values.forEach(Consumer { tLiveData: MutableLiveData<T> ->
+        this.value = value
+        observerLiveDataMap.values.forEach(Consumer { tLiveData: MutableLiveData<T> ->
             tLiveData.setValue(
                 value
             )
@@ -62,5 +62,13 @@ class NPBMutableLiveData<T> {
 
     fun postValue(value: T?) {
         GlobalExecutors.main.execute { setValue(value) }
+    }
+
+    fun isObserverAlive(observer: Observer<T>): Boolean {
+        return observerLiveDataMap.containsKey(observer)
+    }
+
+    fun isAnyObserverAlive(): Boolean {
+        return observerLiveDataMap.isNotEmpty()
     }
 }

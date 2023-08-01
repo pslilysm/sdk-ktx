@@ -16,18 +16,18 @@ import javax.crypto.spec.SecretKeySpec
  * @since 2.2.0
  */
 
-private const val sAesMode = "AES/CFB/NOPadding"
-private const val sAesKey = "NV9MCANO5VVCMUASPSLILYSM19990127"
-private const val sIvKey = "PSLILYSM19990127"
+private const val aesMode = "AES/CFB/NOPadding"
+private const val aesKey = "NV9MCANO5VVCMUASPSLILYSM19990127"
+private const val ivKey = "PSLILYSM19990127"
 
 private val sDefaultEncryptCipher by lazy {
     try {
-        val cipher = Cipher.getInstance(sAesMode)
+        val cipher = Cipher.getInstance(aesMode)
         cipher.init(
             Cipher.ENCRYPT_MODE,
-            SecretKeySpec(sAesKey.toByteArray(), "AES"),
+            SecretKeySpec(aesKey.toByteArray(), "AES"),
             IvParameterSpec(
-                sIvKey.toByteArray()
+                ivKey.toByteArray()
             )
         )
         cipher
@@ -38,12 +38,12 @@ private val sDefaultEncryptCipher by lazy {
 
 private val sDefaultDecryptCipher by lazy {
     try {
-        val cipher = Cipher.getInstance(sAesMode)
+        val cipher = Cipher.getInstance(aesMode)
         cipher.init(
             Cipher.DECRYPT_MODE,
-            SecretKeySpec(sAesKey.toByteArray(), "AES"),
+            SecretKeySpec(aesKey.toByteArray(), "AES"),
             IvParameterSpec(
-                sIvKey.toByteArray()
+                ivKey.toByteArray()
             )
         )
         cipher

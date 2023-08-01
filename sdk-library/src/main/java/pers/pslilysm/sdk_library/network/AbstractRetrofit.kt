@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap
  * @since 1.0.0
  */
 abstract class AbstractRetrofit protected constructor() {
-    private val mApiMap: MutableMap<Class<*>, Any> = ConcurrentHashMap()
-    protected val mRetrofitClient: Retrofit
+    private val apiMap: MutableMap<Class<*>, Any> = ConcurrentHashMap()
+    protected val retrofitClient: Retrofit
 
     /**
      * Provide api service by `apiClass`
@@ -22,8 +22,8 @@ abstract class AbstractRetrofit protected constructor() {
      * @return A created or cached api service by Retrofit
      */
     fun <I> getApi(apiClass: Class<I>): I {
-        return mApiMap.computeIfAbsent(apiClass) { aClass: Class<*>? ->
-            mRetrofitClient.create(aClass)
+        return apiMap.computeIfAbsent(apiClass) { aClass: Class<*>? ->
+            retrofitClient.create(aClass)
         } as I
     }
 
@@ -41,6 +41,6 @@ abstract class AbstractRetrofit protected constructor() {
     protected abstract fun buildRetrofit(): Retrofit
 
     init {
-        mRetrofitClient = buildRetrofit()
+        retrofitClient = buildRetrofit()
     }
 }

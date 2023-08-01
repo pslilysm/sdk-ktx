@@ -129,16 +129,16 @@ private class ShowToastRunnable(private val toastProp: ToastProp) :
     Runnable {
 
     companion object {
-        val sToastTLS = ThreadLocal<Toast>()
+        val toastTLS = ThreadLocal<Toast>()
     }
 
     override fun run() {
-        var toast = sToastTLS.get()
+        var toast = toastTLS.get()
         toast?.cancel()
         toast = Toast.makeText(AppHolder.get(), toastProp.text, toastProp.duration)
         toast!!.setGravity(toastProp.gravity, toastProp.xOffset, toastProp.yOffset)
         toast.setMargin(toastProp.horizontalMargin, toast.verticalMargin)
         toast.show()
-        sToastTLS.set(toast)
+        toastTLS.set(toast)
     }
 }

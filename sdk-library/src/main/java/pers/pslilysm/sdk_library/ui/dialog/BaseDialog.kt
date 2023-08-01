@@ -17,17 +17,17 @@ import androidx.viewbinding.ViewBinding
  */
 abstract class BaseDialog<VB : ViewBinding>(protected val context: Context) : DialogInterface {
 
-    protected val mBinding: VB
-    protected val mBuilder: AlertDialog.Builder
-    protected val mDialog: AlertDialog
+    protected val binding: VB
+    protected val builder: AlertDialog.Builder
+    protected val dialog: AlertDialog
 
     init {
-        mBinding = inflateViewBinding(LayoutInflater.from(context))
-        mBuilder = AlertDialog.Builder(context)
-            .setView(mBinding.root)
+        binding = inflateViewBinding(LayoutInflater.from(context))
+        builder = AlertDialog.Builder(context)
+            .setView(binding.root)
             .setCancelable(true)
         setUp()
-        mDialog = mBuilder.create()
+        dialog = builder.create()
     }
 
     abstract fun inflateViewBinding(layoutInflater: LayoutInflater): VB
@@ -37,16 +37,16 @@ abstract class BaseDialog<VB : ViewBinding>(protected val context: Context) : Di
     abstract fun initWindowLp(lp: WindowManager.LayoutParams)
 
     override fun show() {
-        mDialog.show()
+        dialog.show()
         val lp = WindowManager.LayoutParams()
-        lp.copyFrom(mDialog.window!!.attributes)
+        lp.copyFrom(dialog.window!!.attributes)
         initWindowLp(lp)
-        mDialog.window!!.attributes = lp
-        mDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window!!.attributes = lp
+        dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     override fun dismiss() {
-        mDialog.dismiss()
+        dialog.dismiss()
     }
 
 }

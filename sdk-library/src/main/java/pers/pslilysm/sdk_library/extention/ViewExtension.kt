@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat
  * @since 2.2.0
  */
 
-private val sFinishListener =
+private val finishListener =
     View.OnClickListener { v: View -> (v.context as Activity).finish() }
 
 /**
@@ -79,7 +79,7 @@ fun View.setStatusBarPadding() {
  * Finish activity when view clicked
  */
 fun View.finishActivityWhenClick() {
-    this.setOnClickListener(sFinishListener)
+    this.setOnClickListener(finishListener)
 }
 
 /**

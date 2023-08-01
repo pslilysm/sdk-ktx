@@ -15,10 +15,10 @@ import java.util.*
  * @since 1.0.0
  */
 object ReflectionUtil {
-    private val sConstructors: MutableMap<ConstructorKey, Constructor<*>> by lazy { ArrayMap() }
-    private val sFields: MutableMap<FieldKey, Field> by lazy { ArrayMap() }
-    private val sMethods: MutableMap<MethodKey, Method> by lazy { ArrayMap() }
-    private val sEmptyParameterTypesAndArgs = emptyArray<Any>()
+    private val constructors: MutableMap<ConstructorKey, Constructor<*>> by lazy { ArrayMap() }
+    private val fields: MutableMap<FieldKey, Field> by lazy { ArrayMap() }
+    private val methods: MutableMap<MethodKey, Method> by lazy { ArrayMap() }
+    private val emptyParameterTypesAndArgs = emptyArray<Any>()
 
     /**
      * Split parameter types and args, their size of the two is always the same,
@@ -73,10 +73,10 @@ object ReflectionUtil {
         vararg parameterTypes: Class<*>?
     ): Constructor<T> {
         val constructorKey: ConstructorKey = ConstructorKey.obtain(clazz, *parameterTypes)
-        var constructor = sConstructors[constructorKey] as Constructor<T>?
+        var constructor = constructors[constructorKey] as Constructor<T>?
         if (constructor == null) {
-            synchronized(sConstructors) {
-                if ((sConstructors[constructorKey] as Constructor<T>?).also {
+            synchronized(constructors) {
+                if ((constructors[constructorKey] as Constructor<T>?).also {
                         constructor = it
                     } == null) {
                     constructor = try {
@@ -87,7 +87,7 @@ object ReflectionUtil {
                     }
                     constructor!!.isAccessible = true
                     constructorKey.markInUse()
-                    sConstructors.put(constructorKey, constructor!!)
+                    constructors.put(constructorKey, constructor!!)
                 } else {
                     constructorKey.recycle()
                 }
@@ -104,10 +104,10 @@ object ReflectionUtil {
     @Throws(ReflectiveOperationException::class)
     private fun findOrCreateField(clazz: Class<*>, fieldName: String): Field {
         val fieldKey: FieldKey = FieldKey.obtain(clazz, fieldName)
-        var field = sFields[fieldKey]
+        var field = fields[fieldKey]
         if (field == null) {
-            synchronized(sFields) {
-                if (sFields[fieldKey].also { field = it } == null) {
+            synchronized(fields) {
+                if (fields[fieldKey].also { field = it } == null) {
                     field = try {
                         clazz.getDeclaredField(fieldName)
                     } catch (ex: NoSuchFieldException) {
@@ -121,7 +121,7 @@ object ReflectionUtil {
                     }
                     field!!.isAccessible = true
                     fieldKey.markInUse()
-                    sFields.put(fieldKey, field!!)
+                    fields.put(fieldKey, field!!)
                 } else {
                     fieldKey.recycle()
                 }
@@ -142,10 +142,10 @@ object ReflectionUtil {
         vararg parameterTypes: Class<*>?
     ): Method {
         val methodKey: MethodKey = MethodKey.obtain(clazz, methodName, *parameterTypes)
-        var method = sMethods[methodKey]
+        var method = methods[methodKey]
         if (method == null) {
-            synchronized(sMethods) {
-                if (sMethods[methodKey].also { method = it } == null) {
+            synchronized(methods) {
+                if (methods[methodKey].also { method = it } == null) {
                     method = try {
                         clazz.getDeclaredMethod(methodName, *parameterTypes)
                     } catch (ex: NoSuchMethodException) {
@@ -159,7 +159,7 @@ object ReflectionUtil {
                     }
                     method!!.isAccessible = true
                     methodKey.markInUse()
-                    sMethods.put(methodKey, method!!)
+                    methods.put(methodKey, method!!)
                 } else {
                     methodKey.recycle()
                 }
@@ -174,13 +174,13 @@ object ReflectionUtil {
     fun <T> newInstance(className: String?): T {
         return newInstance(
             className,
-            *sEmptyParameterTypesAndArgs
+            *emptyParameterTypesAndArgs
         )
     }
 
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(className: String?, classLoader: ClassLoader): T {
-        return newInstance(className, classLoader, *sEmptyParameterTypesAndArgs)
+        return newInstance(className, classLoader, *emptyParameterTypesAndArgs)
     }
 
     @Throws(ReflectiveOperationException::class)
@@ -202,7 +202,7 @@ object ReflectionUtil {
 
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(clazz: Class<T>): T {
-        return newInstance(clazz, *sEmptyParameterTypesAndArgs)
+        return newInstance(clazz, *emptyParameterTypesAndArgs)
     }
 
     @Throws(ReflectiveOperationException::class)
@@ -243,7 +243,7 @@ object ReflectionUtil {
 
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeMethod(`object`: Any, methodName: String): T? {
-        return invokeMethod(`object`, methodName, *sEmptyParameterTypesAndArgs)
+        return invokeMethod(`object`, methodName, *emptyParameterTypesAndArgs)
     }
 
     @Throws(ReflectiveOperationException::class)
@@ -312,7 +312,7 @@ object ReflectionUtil {
         return invokeStaticMethod(
             ClassLoader.getSystemClassLoader().loadClass(className),
             methodName,
-            *sEmptyParameterTypesAndArgs
+            *emptyParameterTypesAndArgs
         )
     }
 
@@ -325,13 +325,13 @@ object ReflectionUtil {
         return invokeStaticMethod(
             classLoader.loadClass(className),
             methodName,
-            *sEmptyParameterTypesAndArgs
+            *emptyParameterTypesAndArgs
         )
     }
 
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(clazz: Class<*>, methodName: String): T? {
-        return invokeStaticMethod(clazz, methodName, *sEmptyParameterTypesAndArgs)
+        return invokeStaticMethod(clazz, methodName, *emptyParameterTypesAndArgs)
     }
 
     @Throws(ReflectiveOperationException::class)

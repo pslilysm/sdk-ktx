@@ -26,25 +26,25 @@ class FieldKey private constructor(var clazz: Class<*>?, var filedName: String?)
         clazz = null
         filedName = null
         synchronized(FieldKey::class.java) {
-            if (sPoolSize < MAX_POOL_SIZE) {
-                next = sPool
-                sPool = this
-                sPoolSize++
+            if (poolSize < MAX_POOL_SIZE) {
+                next = pool
+                pool = this
+                poolSize++
             }
         }
     }
 
     companion object {
         private const val MAX_POOL_SIZE = 10
-        private var sPool: FieldKey? = null
-        private var sPoolSize = 0
+        private var pool: FieldKey? = null
+        private var poolSize = 0
         fun obtain(clazz: Class<*>?, filedName: String?): FieldKey {
             synchronized(FieldKey::class.java) {
-                if (sPool != null) {
-                    val fk = sPool
-                    sPool = fk!!.next
+                if (pool != null) {
+                    val fk = pool
+                    pool = fk!!.next
                     fk.next = null
-                    sPoolSize--
+                    poolSize--
                     fk.clazz = clazz
                     fk.filedName = filedName
                     return fk

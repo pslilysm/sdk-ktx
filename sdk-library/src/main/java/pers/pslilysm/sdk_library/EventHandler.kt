@@ -16,23 +16,23 @@ import java.util.function.Consumer
  */
 class EventHandler constructor(looper: Looper, callback: Callback? = null) :
     Handler(looper, callback) {
-    private val mMultiCallbacks: ConcurrentMap<Int, MutableList<EventCallback>> =
+    private val multiCallbacks: ConcurrentMap<Int, MutableList<EventCallback>> =
         ConcurrentHashMap()
 
-    private val mEmptyMutableList: MutableList<EventCallback> = mutableListOf()
+    private val emptyMutableList: MutableList<EventCallback> = mutableListOf()
 
     fun registerEvent(eventCode: Int, callback: EventCallback) {
-        mMultiCallbacks.computeIfAbsent(eventCode) { CopyOnWriteArrayList() }
+        multiCallbacks.computeIfAbsent(eventCode) { CopyOnWriteArrayList() }
             .add(callback)
     }
 
     fun unregisterEvent(eventCode: Int, callback: EventCallback) {
-        mMultiCallbacks.getOrDefault(eventCode, mEmptyMutableList)
+        multiCallbacks.getOrDefault(eventCode, emptyMutableList)
             .removeIf { eventCallback: EventCallback -> eventCallback === callback }
     }
 
     fun unregisterAllEvent(callback: EventCallback) {
-        mMultiCallbacks.values.forEach(Consumer { eventCallbacks: MutableList<EventCallback> ->
+        multiCallbacks.values.forEach(Consumer { eventCallbacks: MutableList<EventCallback> ->
             eventCallbacks.remove(
                 callback
             )
@@ -54,7 +54,7 @@ class EventHandler constructor(looper: Looper, callback: Callback? = null) :
     }
 
     override fun handleMessage(msg: Message) {
-        mMultiCallbacks.getOrDefault(msg.what, mEmptyMutableList)
+        multiCallbacks.getOrDefault(msg.what, emptyMutableList)
             .forEach(Consumer { eventCallback: EventCallback -> eventCallback.handleEvent(msg) })
     }
 

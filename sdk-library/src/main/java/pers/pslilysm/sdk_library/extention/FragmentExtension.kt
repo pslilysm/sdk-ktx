@@ -14,7 +14,7 @@ import pers.pslilysm.sdk_library.util.reflection.ReflectionUtil
  * @since 2.2.0
  */
 
-val sViewPager2Finder: FragmentFinder by lazy {
+val viewPager2Finder: FragmentFinder by lazy {
     object : FragmentFinder {
         override fun <T : Fragment?> findFragment(
             fmtClass: Class<out Fragment?>,
@@ -31,7 +31,7 @@ fun <T : Fragment?> FragmentManager.findOrCreateFmtInViewPager2(
     fmtClass: Class<T>,
     position: Int,
 ): T {
-    return findOrCreateFmt(fmtClass, sViewPager2Finder, object : FragmentCreator<T> {
+    return findOrCreateFmt(fmtClass, viewPager2Finder, object : FragmentCreator<T> {
         override fun create(fmtClazz: Class<T>): T {
             return try {
                 ReflectionUtil.newInstance(fmtClazz)

@@ -16,12 +16,12 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     /**
      * The base task scheduling executor
      */
-    private val mTaskSchedulingES: ScheduledExecutorService
+    private val taskSchedulingES: ScheduledExecutorService
 
     /**
      * The base task execution executor
      */
-    private val mTaskExecutionES: ExecutorService
+    private val taskExecutionES: ExecutorService
 
     constructor(executorService: ExecutorService) : this(
         executorService,
@@ -29,11 +29,11 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     )
 
     init {
-        mTaskSchedulingES = ScheduledThreadPoolExecutor(
+        taskSchedulingES = ScheduledThreadPoolExecutor(
             1,
             Objects.requireNonNull(threadFactory, "threadFactory can not be null")
         )
-        mTaskExecutionES = Objects.requireNonNull(executor, "executor can not be null")
+        taskExecutionES = Objects.requireNonNull(executor, "executor can not be null")
     }
 
     private fun wrapRunnable(command: Runnable): Runnable {
@@ -45,7 +45,7 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     }
 
     override fun schedule(command: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture<*> {
-        return mTaskSchedulingES.schedule(wrapRunnable(command), delay, unit)
+        return taskSchedulingES.schedule(wrapRunnable(command), delay, unit)
     }
 
     override fun <V> schedule(
@@ -55,7 +55,7 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     ): ScheduledFuture<V> {
         // warn!! if the callable will block, then task scheduling will block so.
         // invoke this method with caution!
-        return mTaskSchedulingES.schedule(wrapCallable(callable), delay, unit)
+        return taskSchedulingES.schedule(wrapCallable(callable), delay, unit)
     }
 
     override fun scheduleAtFixedRate(
@@ -64,7 +64,7 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
         period: Long,
         unit: TimeUnit
     ): ScheduledFuture<*> {
-        return mTaskSchedulingES.scheduleAtFixedRate(
+        return taskSchedulingES.scheduleAtFixedRate(
             wrapRunnable(command),
             initialDelay,
             period,
@@ -78,7 +78,7 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
         delay: Long,
         unit: TimeUnit
     ): ScheduledFuture<*> {
-        return mTaskSchedulingES.scheduleWithFixedDelay(
+        return taskSchedulingES.scheduleWithFixedDelay(
             wrapRunnable(command),
             initialDelay,
             delay,
@@ -87,8 +87,8 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     }
 
     override fun shutdown() {
-        mTaskSchedulingES.shutdown()
-        mTaskExecutionES.shutdown()
+        taskSchedulingES.shutdown()
+        taskExecutionES.shutdown()
     }
 
     override fun shutdownNow(): List<Runnable> {
@@ -99,11 +99,11 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     }
 
     override fun isShutdown(): Boolean {
-        return mTaskSchedulingES.isShutdown && mTaskExecutionES.isShutdown
+        return taskSchedulingES.isShutdown && taskExecutionES.isShutdown
     }
 
     override fun isTerminated(): Boolean {
-        return mTaskSchedulingES.isTerminated && mTaskExecutionES.isTerminated
+        return taskSchedulingES.isTerminated && taskExecutionES.isTerminated
     }
 
     @Throws(InterruptedException::class)
@@ -117,20 +117,20 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
     }
 
     override fun <T> submit(task: Callable<T>): Future<T> {
-        return mTaskExecutionES.submit(task)
+        return taskExecutionES.submit(task)
     }
 
     override fun <T> submit(task: Runnable, result: T): Future<T> {
-        return mTaskExecutionES.submit(task, result)
+        return taskExecutionES.submit(task, result)
     }
 
     override fun submit(task: Runnable): Future<*> {
-        return mTaskExecutionES.submit(task)
+        return taskExecutionES.submit(task)
     }
 
     @Throws(InterruptedException::class)
     override fun <T> invokeAll(tasks: Collection<Callable<T>?>): List<Future<T>> {
-        return mTaskExecutionES.invokeAll(tasks)
+        return taskExecutionES.invokeAll(tasks)
     }
 
     @Throws(InterruptedException::class)
@@ -139,20 +139,20 @@ class ScheduledThreadPoolExecutorWrapper(executor: ExecutorService, threadFactor
         timeout: Long,
         unit: TimeUnit
     ): List<Future<T>> {
-        return mTaskExecutionES.invokeAll(tasks, timeout, unit)
+        return taskExecutionES.invokeAll(tasks, timeout, unit)
     }
 
     @Throws(ExecutionException::class, InterruptedException::class)
     override fun <T> invokeAny(tasks: Collection<Callable<T>?>): T {
-        return mTaskExecutionES.invokeAny(tasks)
+        return taskExecutionES.invokeAny(tasks)
     }
 
     @Throws(ExecutionException::class, InterruptedException::class, TimeoutException::class)
     override fun <T> invokeAny(tasks: Collection<Callable<T>?>, timeout: Long, unit: TimeUnit): T {
-        return mTaskExecutionES.invokeAny(tasks, timeout, unit)
+        return taskExecutionES.invokeAny(tasks, timeout, unit)
     }
 
     override fun execute(command: Runnable) {
-        mTaskExecutionES.execute(command)
+        taskExecutionES.execute(command)
     }
 }

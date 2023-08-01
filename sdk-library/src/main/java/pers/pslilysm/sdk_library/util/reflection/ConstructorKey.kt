@@ -31,25 +31,25 @@ class ConstructorKey private constructor(
         clazz = null
         parameterTypes = emptyArray()
         synchronized(ConstructorKey::class.java) {
-            if (sPoolSize < MAX_POOL_SIZE) {
-                next = sPool
-                sPool = this
-                sPoolSize++
+            if (poolSize < MAX_POOL_SIZE) {
+                next = pool
+                pool = this
+                poolSize++
             }
         }
     }
 
     companion object {
         private const val MAX_POOL_SIZE = 10
-        private var sPool: ConstructorKey? = null
-        private var sPoolSize = 0
+        private var pool: ConstructorKey? = null
+        private var poolSize = 0
         fun obtain(clazz: Class<*>?, vararg parameterTypes: Class<*>?): ConstructorKey {
             synchronized(ConstructorKey::class.java) {
-                if (sPool != null) {
-                    val m = sPool
-                    sPool = m!!.next
+                if (pool != null) {
+                    val m = pool
+                    pool = m!!.next
                     m.next = null
-                    sPoolSize--
+                    poolSize--
                     m.clazz = clazz
                     m.parameterTypes = parameterTypes
                     return m
