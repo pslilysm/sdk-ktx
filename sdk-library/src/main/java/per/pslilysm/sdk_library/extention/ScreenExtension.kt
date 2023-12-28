@@ -9,7 +9,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import per.pslilysm.sdk_library.AppHolder
+import per.pslilysm.sdk_library.application
 
 /**
  * Extension for screen
@@ -20,7 +20,7 @@ import per.pslilysm.sdk_library.AppHolder
  */
 
 val darkMode: Boolean
-    get() = (AppHolder.get().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+    get() = (application.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             == Configuration.UI_MODE_NIGHT_YES)
 
 val statusBarHeight: Int
@@ -28,16 +28,16 @@ val statusBarHeight: Int
     get() {
         var result = 0
         val resourceId =
-            AppHolder.get().resources.getIdentifier("status_bar_height", "dimen", "android")
+            application.resources.getIdentifier("status_bar_height", "dimen", "android")
         if (resourceId > 0) {
-            result = AppHolder.get().resources.getDimensionPixelSize(resourceId)
+            result = application.resources.getDimensionPixelSize(resourceId)
         }
         return result
     }
 
 val screenWidth: Int
     get() {
-        val wm = AppHolder.get().getSystemService(WindowManager::class.java)
+        val wm = application.getSystemService(WindowManager::class.java)
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            wm.currentWindowMetrics.bounds.width()
 //        } else {
@@ -52,7 +52,7 @@ val screenWidth: Int
 
 val screenHeight: Int
     get() {
-        val wm = AppHolder.get().getSystemService(WindowManager::class.java)
+        val wm = application.getSystemService(WindowManager::class.java)
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            wm.currentWindowMetrics.bounds.height()
 //        } else {
@@ -67,7 +67,7 @@ val screenHeight: Int
 
 val screenRealWidth: Int
     get() {
-        val wm = AppHolder.get().getSystemService(WindowManager::class.java)
+        val wm = application.getSystemService(WindowManager::class.java)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             wm.maximumWindowMetrics.bounds.width()
         } else {
@@ -79,7 +79,7 @@ val screenRealWidth: Int
 
 val screenRealHeight: Int
     get() {
-        val wm = AppHolder.get().getSystemService(WindowManager::class.java)
+        val wm = application.getSystemService(WindowManager::class.java)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             wm.maximumWindowMetrics.bounds.height()
         } else {
@@ -90,12 +90,12 @@ val screenRealHeight: Int
     }
 
 fun Float.dip2px(): Int {
-    val scale = AppHolder.get().resources.displayMetrics.density
+    val scale = application.resources.displayMetrics.density
     return (this * scale + 0.5f).toInt()
 }
 
 fun Int.pxToDip(): Float {
-    val scale = AppHolder.get().resources.displayMetrics.density
+    val scale = application.resources.displayMetrics.density
     return (this / scale + 0.5f)
 }
 
@@ -103,14 +103,14 @@ fun Float.spToPx(): Int {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_SP,
         this,
-        AppHolder.get().resources.displayMetrics
+        application.resources.displayMetrics
     ).toInt()
 }
 
 val navBarHeight: Int
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     get() {
-        val resources = AppHolder.get().resources
+        val resources = application.resources
         val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         return if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
@@ -118,7 +118,7 @@ val navBarHeight: Int
     }
 
 val screenDensityDpi: Int
-    get() = AppHolder.get().resources.displayMetrics.densityDpi
+    get() = application.resources.displayMetrics.densityDpi
 
 fun Window.setSystemUiFlagAndTransparentStatusBar(
     layoutFullScreen: Boolean,

@@ -34,7 +34,7 @@ fun Pair<Float, Float>.calculateAngle(another: Pair<Float, Float>): Float {
  * @return True if the point in the rect
  */
 fun Pair<Float, Float>.isInRect(pointList: List<Pair<Float, Float>>): Boolean {
-    val n = pointList.size //n=4
+    val n = pointList.size // n=4
     assert(n == 4)
     var sum = 0f
     for (i in 0 until 3) {

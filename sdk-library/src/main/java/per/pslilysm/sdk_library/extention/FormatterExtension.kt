@@ -70,19 +70,43 @@ val pattern_0d0DecimalFormat: DecimalFormat
     }
 
 /**
- * @return A formatted file size string with pattern "#.00"
+ * @return A formatted file size string with adaptive pattern
  */
 fun Long.autoFormatFileSize(): String {
     return if (this > TB_SIZE) {
-        pattern_0d00DecimalFormat.format(this / (TB_SIZE)) + " TB"
+        (this / (TB_SIZE)).let {
+            it.getAdaptiveFormatter().format(it)
+        } + " TB"
     } else if (this > GB_SIZE) {
-        pattern_0d00DecimalFormat.format(this / (GB_SIZE)) + " GB"
+        (this / (GB_SIZE)).let {
+            it.getAdaptiveFormatter().format(it)
+        } + " GB"
     } else if (this > MB_SIZE) {
-        pattern_0d00DecimalFormat.format(this / (MB_SIZE)) + " MB"
+        (this / (MB_SIZE)).let {
+            it.getAdaptiveFormatter().format(it)
+        } + " MB"
     } else if (this > KB_SIZE) {
-        (this / KB_SIZE).toString() + " KB"
+        (this / (KB_SIZE)).toFloat().let {
+            it.getAdaptiveFormatter().format(it)
+        } + " KB"
     } else {
         "$this B"
+    }
+}
+
+private fun Float.getAdaptiveFormatter(): DecimalFormat {
+    return if (this >= 100) {
+        decimalFormat.apply {
+            applyPattern("0")
+        }
+    } else if (this >= 10) {
+        decimalFormat.apply {
+            applyPattern("0.#")
+        }
+    } else {
+        decimalFormat.apply {
+            applyPattern("0.##")
+        }
     }
 }
 

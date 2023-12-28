@@ -11,14 +11,13 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
-import per.pslilysm.sdk_library.AppHolder
+import per.pslilysm.sdk_library.application
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.util.Date
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -128,7 +127,7 @@ fun InputStream.save2MediaStore(
         val outFile = originalOutFile.addTimesIfExit(alternativeDisplayName = alternativeDisplayName) ?: return null
         try {
             FileUtils.copyInputStreamToFile(this@save2MediaStore, outFile)
-            MediaScannerConnection.scanFile(AppHolder.get(), arrayOf(outFile.absolutePath), null) { _, uri ->
+            MediaScannerConnection.scanFile(application, arrayOf(outFile.absolutePath), null) { _, uri ->
                 result = uri
                 countDownLatch.countDown()
             }
@@ -174,13 +173,14 @@ fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File? 
  * @return A new cache file copied by the uri
  */
 @Throws(IOException::class)
-fun Uri.copyToNewCacheFile(): File {
+fun Uri.copyToNewCacheFile(fileSuffix: String? = null): File {
     throwIfMainThread()
-    AppHolder.get().openUriInputStreamSafety(this).use { `is` ->
-        if (`is` == null) {
-            throw IOException("InputStream is null, the uri is $this")
+    application.openInputStreamNotNull(this).use { `is` ->
+        var fileName = SystemClock.elapsedRealtimeNanos().toString()
+        if (fileSuffix != null) {
+            fileName += fileSuffix
         }
-        val newCacheFile = File(AppHolder.get().cacheDir, SystemClock.elapsedRealtimeNanos().toString())
+        val newCacheFile = File(application.cacheDir, fileName)
         FileUtils.copyInputStreamToFile(`is`, newCacheFile)
         return newCacheFile
     }

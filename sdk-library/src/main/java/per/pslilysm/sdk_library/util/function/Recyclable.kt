@@ -8,5 +8,10 @@ package per.pslilysm.sdk_library.util.function
  * @since 1.0.0
  */
 interface Recyclable {
+
+    /**
+     * Recycle the object
+     */
     fun recycle()
+
 }

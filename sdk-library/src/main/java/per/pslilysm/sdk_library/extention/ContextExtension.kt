@@ -8,6 +8,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.annotation.RequiresPermission
+import java.io.IOException
 import java.io.InputStream
 
 /**
@@ -36,15 +37,9 @@ fun Context.versionName(): String {
     return this.packageManager.getPackageInfo(this.packageName, 0).versionName
 }
 
-/**
- * @return A InputStream of the uri or null if exception occurs
- */
-fun Context.openUriInputStreamSafety(uri: Uri): InputStream? {
-    return try {
-        contentResolver.openInputStream(uri)
-    } catch (e: Exception) {
-        null
-    }
+@Throws(IOException::class)
+fun Context.openInputStreamNotNull(uri: Uri): InputStream {
+    return contentResolver.openInputStream(uri) ?: throw IOException("ContentProvider crashed")
 }
 
 @RequiresPermission(android.Manifest.permission.VIBRATE)

@@ -3,6 +3,9 @@ package per.pslilysm.sdk_library
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -14,25 +17,37 @@ import java.util.function.Consumer
  * @author pslilysm
  * @since 1.0.0
  */
-class EventHandler constructor(looper: Looper, callback: Callback? = null) :
-    Handler(looper, callback) {
-    private val multiCallbacks: ConcurrentMap<Int, MutableList<EventCallback>> =
-        ConcurrentHashMap()
+class EventHandler constructor(looper: Looper) :
+    Handler(looper, null) {
 
-    private val emptyMutableList: MutableList<EventCallback> = mutableListOf()
+    private val multiCallbacks: ConcurrentMap<Int, MutableList<Consumer<Message>>> = ConcurrentHashMap()
 
-    fun registerEvent(eventCode: Int, callback: EventCallback) {
+    private val emptyMutableList: MutableList<Consumer<Message>> = mutableListOf()
+
+    fun registerEvent(lifecycleOwner: LifecycleOwner? = null, eventCode: Int, consumer: Consumer<Message>) {
+        lifecycleOwner?.also {
+            if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                // ignore
+                return
+            }
+            lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    owner.lifecycle.removeObserver(this)
+                    unregisterEvent(eventCode, consumer)
+                }
+            })
+        }
         multiCallbacks.computeIfAbsent(eventCode) { CopyOnWriteArrayList() }
-            .add(callback)
+            .add(consumer)
     }
 
-    fun unregisterEvent(eventCode: Int, callback: EventCallback) {
+    fun unregisterEvent(eventCode: Int, consumer: Consumer<Message>) {
         multiCallbacks.getOrDefault(eventCode, emptyMutableList)
-            .removeIf { eventCallback: EventCallback -> eventCallback === callback }
+            .removeIf { eventCallback: Consumer<Message> -> eventCallback == consumer }
     }
 
-    fun unregisterAllEvent(callback: EventCallback) {
-        multiCallbacks.values.forEach(Consumer { eventCallbacks: MutableList<EventCallback> ->
+    fun unregisterAllEvent(callback: Consumer<Message>) {
+        multiCallbacks.values.forEach(Consumer { eventCallbacks: MutableList<Consumer<Message>> ->
             eventCallbacks.remove(
                 callback
             )
@@ -55,21 +70,16 @@ class EventHandler constructor(looper: Looper, callback: Callback? = null) :
 
     override fun handleMessage(msg: Message) {
         multiCallbacks.getOrDefault(msg.what, emptyMutableList)
-            .forEach(Consumer { eventCallback: EventCallback -> eventCallback.handleEvent(msg) })
+            .forEach(Consumer { consumer: Consumer<Message> ->
+                consumer.accept(msg)
+            })
     }
 
-    interface EventCallback {
-        fun handleEvent(msg: Message)
-    }
+}
 
-    companion object {
-
-        /**
-         * A default EventHandler which bind MainLooper
-         */
-        val default by lazy {
-            EventHandler(Looper.getMainLooper())
-        }
-
-    }
+/**
+ * A default EventHandler which bind MainLooper
+ */
+val defaultEventHandler by lazy {
+    EventHandler(Looper.getMainLooper())
 }

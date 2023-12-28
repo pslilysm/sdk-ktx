@@ -26,25 +26,16 @@ object GlobalExecutors {
         val keepAliveTimeSeconds = 2
         val maxQueueSize = maxPoolSize * 0xFF
         val workQueue = ExecutorsLinkedBlockingQueue(maxQueueSize)
-        val threadFactory =
-            ThreadFactory { r: Runnable? ->
-                Thread(
-                    r,
-                    "g-io-" + ioNum.incrementAndGet() + "-thread"
-                )
+        val threadFactory = ThreadFactory { r: Runnable? ->
+            Thread(r, "g-io-" + ioNum.incrementAndGet() + "-thread")
+        }
+        val rejectedExecutionHandler = RejectedExecutionHandler { r: Runnable, executor: ThreadPoolExecutor ->
+            if (!executor.isShutdown && workQueue.size < maxQueueSize) {
+                executor.execute(r)
+            } else {
+                throw RejectedExecutionException("Task $r rejected from $executor")
             }
-        val rejectedExecutionHandler =
-            RejectedExecutionHandler { r: Runnable, executor: ThreadPoolExecutor ->
-                if (workQueue.size < maxQueueSize) {
-                    executor.execute(r)
-                } else {
-                    throw RejectedExecutionException(
-                        "Task " + r.toString() +
-                                " rejected from " +
-                                executor.toString()
-                    )
-                }
-            }
+        }
         val ioES = ThreadPoolExecutor(
             corePoolSize,
             maxPoolSize,
@@ -62,25 +53,16 @@ object GlobalExecutors {
         val keepAliveTimeSeconds = 2
         val maxQueueSize = maxPoolSize * 0xF
         val workQueue = ExecutorsLinkedBlockingQueue(maxQueueSize)
-        val threadFactory =
-            ThreadFactory { r: Runnable? ->
-                Thread(
-                    r,
-                    "g-compute-" + computeNum.incrementAndGet() + "-thread"
-                )
+        val threadFactory = ThreadFactory { r: Runnable? ->
+            Thread(r, "g-compute-" + computeNum.incrementAndGet() + "-thread")
+        }
+        val rejectedExecutionHandler = RejectedExecutionHandler { r: Runnable, executor: ThreadPoolExecutor ->
+            if (!executor.isShutdown && workQueue.size < maxQueueSize) {
+                executor.execute(r)
+            } else {
+                throw RejectedExecutionException("Task $r rejected from $executor")
             }
-        val rejectedExecutionHandler =
-            RejectedExecutionHandler { r: Runnable, executor: ThreadPoolExecutor ->
-                if (workQueue.size < maxQueueSize) {
-                    executor.execute(r)
-                } else {
-                    throw RejectedExecutionException(
-                        "Task " + r.toString() +
-                                " rejected from " +
-                                executor.toString()
-                    )
-                }
-            }
+        }
         val computeES = ThreadPoolExecutor(
             corePoolSize,
             maxPoolSize,
@@ -102,7 +84,7 @@ object GlobalExecutors {
     }
 
     /**
-     * @return a global io executor, the core pool size is `cpu cores * 5`
+     * @return a global io executor, the core pool size is `cpu cores * 10`
      */
     val io: ScheduledExecutorService get() = ioExecutor
 

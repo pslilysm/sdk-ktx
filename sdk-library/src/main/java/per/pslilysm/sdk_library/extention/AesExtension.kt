@@ -20,7 +20,7 @@ private const val aesMode = "AES/CFB/NOPadding"
 private const val aesKey = "NV9MCANO5VVCMUASPSLILYSM19990127"
 private const val ivKey = "PSLILYSM19990127"
 
-private val sDefaultEncryptCipher by lazy {
+private val defaultEncryptCipher by lazy {
     try {
         val cipher = Cipher.getInstance(aesMode)
         cipher.init(
@@ -36,7 +36,7 @@ private val sDefaultEncryptCipher by lazy {
     }
 }
 
-private val sDefaultDecryptCipher by lazy {
+private val defaultDecryptCipher by lazy {
     try {
         val cipher = Cipher.getInstance(aesMode)
         cipher.init(
@@ -59,7 +59,7 @@ private val sDefaultDecryptCipher by lazy {
  */
 fun String.encrypt(): String {
     return try {
-        val bytes = sDefaultEncryptCipher.doFinal(toByteArray(StandardCharsets.UTF_8))
+        val bytes = defaultEncryptCipher.doFinal(toByteArray(StandardCharsets.UTF_8))
         Base64.encodeToString(bytes, Base64.NO_WRAP)
     } catch (e: Exception) {
         throw e.rethrow()
@@ -73,7 +73,7 @@ fun String.encrypt(): String {
  */
 fun String.decrypt(): String {
     return try {
-        String(sDefaultDecryptCipher.doFinal(Base64.decode(this, Base64.NO_WRAP)), StandardCharsets.UTF_8)
+        String(defaultDecryptCipher.doFinal(Base64.decode(this, Base64.NO_WRAP)), StandardCharsets.UTF_8)
     } catch (e: Exception) {
         throw e.rethrow()
     }

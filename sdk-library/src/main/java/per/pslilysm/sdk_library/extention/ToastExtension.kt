@@ -2,7 +2,7 @@ package per.pslilysm.sdk_library.extention
 
 import android.os.Looper
 import android.widget.Toast
-import per.pslilysm.sdk_library.AppHolder
+import per.pslilysm.sdk_library.application
 import per.pslilysm.sdk_library.util.concurrent.GlobalExecutors
 
 /**
@@ -135,7 +135,7 @@ private class ShowToastRunnable(private val toastProp: ToastProp) :
     override fun run() {
         var toast = toastTLS.get()
         toast?.cancel()
-        toast = Toast.makeText(AppHolder.get(), toastProp.text, toastProp.duration)
+        toast = Toast.makeText(application, toastProp.text, toastProp.duration)
         toast!!.setGravity(toastProp.gravity, toastProp.xOffset, toastProp.yOffset)
         toast.setMargin(toastProp.horizontalMargin, toast.verticalMargin)
         toast.show()
