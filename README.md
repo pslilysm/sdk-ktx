@@ -6,19 +6,21 @@ Only support for Kotlin.
 
 * step 1
 ```groovy
-allprojects {
+dependencyResolutionManagement {
     repositories {
-        // Add it in your root build.gradle at the end of repositories:
+        // Add it in your root settings.gradle at the end of repositories:
         maven { url 'https://jitpack.io' }
     }
 }
 ```
-    or in gradle 7 and above
+    or in settings.gradle.kts
 ```groovy
+import java.net.URI
+~~~
 dependencyResolutionManagement {
     repositories {
-        // Add it in your root build.gradle at the end of repositories:
-        maven { url 'https://jitpack.io' }
+        // Add it in your root settings.gradle.kts at the end of repositories:
+        maven { url = URI("https://jitpack.io") }
     }
 }
 ```
@@ -28,7 +30,17 @@ dependencyResolutionManagement {
 dependencies {
     // add sdk-ktx to your dependencies
     // proguard bundled in aar
-    implementation 'com.github.pslilysm:sdk-ktx:2.2.9'
+    implementation 'com.github.pslilysm:sdk-ktx:2.3.0'
 }
 ```
+    or in build.gradle.kts
+```groovy
+dependencies {
+    // add sdk-ktx to your dependencies
+    // proguard bundled in aar
+    implementation("com.github.pslilysm:sdk-ktx:2.3.0")
+}
+```
+
+
 
