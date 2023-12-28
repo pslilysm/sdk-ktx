@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace = "per.pslilysm.sdk_ktx"
-    compileSdk = rootProject.extra["compileSdk"] as Int
+    compileSdk = (property("compileSdk") as String).toInt()
 
     defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-        targetSdk = rootProject.extra["targetSdk"] as Int
+        minSdk = (property("minSdk") as String).toInt()
+        targetSdk = (property("targetSdk") as String).toInt()
         versionCode = 1
         versionName = "1.0"
     }

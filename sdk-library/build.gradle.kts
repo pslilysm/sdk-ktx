@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "per.pslilysm.sdk_library"
-    compileSdk = rootProject.extra["compileSdk"] as Int
+    compileSdk = (property("compileSdk") as String).toInt()
 
     defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-        testOptions.targetSdk = rootProject.extra["targetSdk"] as Int
+        minSdk = (property("minSdk") as String).toInt()
+        testOptions.targetSdk = (property("targetSdk") as String).toInt()
         consumerProguardFiles("consumer-rules.pro")
     }
 
