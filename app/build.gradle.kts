@@ -4,13 +4,17 @@ plugins {
     id("kotlin-kapt")
 }
 
+val compileSdkConf : String by project
+val minSdkConf : String by project
+val targetSdkConf : String by project
+
 android {
     namespace = "per.pslilysm.sdk_ktx"
-    compileSdk = (property("compileSdk") as String).toInt()
+    compileSdk = compileSdkConf.toInt()
 
     defaultConfig {
-        minSdk = (property("minSdk") as String).toInt()
-        targetSdk = (property("targetSdk") as String).toInt()
+        minSdk = minSdkConf.toInt()
+        targetSdk = targetSdkConf.toInt()
         versionCode = 1
         versionName = "1.0"
     }

@@ -1,15 +1,20 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    `maven-publish`
 }
+
+val compileSdkConf : String by project
+val minSdkConf : String by project
+val targetSdkConf : String by project
 
 android {
     namespace = "per.pslilysm.sdk_library"
-    compileSdk = (property("compileSdk") as String).toInt()
+    compileSdk = compileSdkConf.toInt()
 
     defaultConfig {
-        minSdk = (property("minSdk") as String).toInt()
-        testOptions.targetSdk = (property("targetSdk") as String).toInt()
+        minSdk = minSdkConf.toInt()
+        testOptions.targetSdk = targetSdkConf.toInt()
         consumerProguardFiles("consumer-rules.pro")
     }
 
