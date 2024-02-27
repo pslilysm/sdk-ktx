@@ -2,8 +2,6 @@ package per.pslilysm.sdk_library.util
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -65,7 +63,10 @@ object CompressFileUtil {
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement()
                 if (entry.isDirectory) {
-                    FileUtils.forceMkdir(File(outputDir, entry.name))
+                    val dir = File(outputDir, entry.name)
+                    if (!dir.exists()) {
+                        dir.mkdirs()
+                    }
                 } else {
                     entryFileQueue.add(entry)
                 }
@@ -81,10 +82,7 @@ object CompressFileUtil {
                         try {
                             zf.getInputStream(zipEntry).use { `is` ->
                                 FileOutputStream(f).use { fos ->
-                                    IOUtils.copy(
-                                        `is`,
-                                        fos
-                                    )
+                                    `is`.copyTo(fos)
                                 }
                             }
                         } catch (e: IOException) {
@@ -149,7 +147,10 @@ object CompressFileUtil {
             val entryFileQueue = ConcurrentLinkedQueue<SevenZArchiveEntry>()
             for (entry in sevenZFile.entries) {
                 if (entry.isDirectory) {
-                    FileUtils.forceMkdir(File(outputDir, entry.name))
+                    val dir = File(outputDir, entry.name)
+                    if (!dir.exists()) {
+                        dir.mkdirs()
+                    }
                 } else {
                     entryFileQueue.offer(entry)
                 }
@@ -165,10 +166,7 @@ object CompressFileUtil {
                         try {
                             sevenZFile.getInputStream(entry).use { `is` ->
                                 FileOutputStream(f).use { fos ->
-                                    IOUtils.copy(
-                                        `is`,
-                                        fos
-                                    )
+                                    `is`.copyTo(fos)
                                 }
                             }
                         } catch (e: IOException) {
@@ -203,9 +201,17 @@ object CompressFileUtil {
             while (sevenZFile.nextEntry.also { entry = it } != null) {
                 if (!entry.isDirectory) {
                     val f = File(outputDir, entry.name)
-                    FileUtils.forceMkdirParent(f)
+                    f.parentFile?.let {
+                        if (!it.exists()) {
+                            it.mkdirs()
+                        }
+                    }
                     sevenZFile.getInputStream(entry)
-                        .use { `is` -> FileOutputStream(f).use { fos -> IOUtils.copy(`is`, fos) } }
+                        .use { `is` ->
+                            FileOutputStream(f).use { fos ->
+                                `is`.copyTo(fos)
+                            }
+                        }
                 }
             }
         }

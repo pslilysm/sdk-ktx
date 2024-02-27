@@ -22,8 +22,8 @@ private const val DEFAULT_ANIM_DURATION = 280L
 /**
  * Rotate view infinity
  *
- * @param duration The time (in milliseconds) spend when rotate 1 times,
- * @param animationListener The animation listener to be notified
+ * @param duration the time (in milliseconds) spend when rotate 1 times,
+ * @param animationListener the animation listener to be notified
  */
 fun View.rotateInfinity(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     val rotate = RotateAnimation(
@@ -43,8 +43,8 @@ fun View.rotateInfinity(duration: Long = DEFAULT_ANIM_DURATION, animationListene
 /**
  * Show view with alpha animation
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.showWithAlpha(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility != View.VISIBLE) {
@@ -59,8 +59,8 @@ fun View.showWithAlpha(duration: Long = DEFAULT_ANIM_DURATION, animationListener
 /**
  * Hide view with alpha animation
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.hideViewWithAlpha(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility == View.VISIBLE) {
@@ -75,8 +75,8 @@ fun View.hideViewWithAlpha(duration: Long = DEFAULT_ANIM_DURATION, animationList
 /**
  * Show view with translate animation from bot to top
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.showViewWithTranslateFromBottomToTop(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility != View.VISIBLE) {
@@ -94,8 +94,8 @@ fun View.showViewWithTranslateFromBottomToTop(duration: Long = DEFAULT_ANIM_DURA
 /**
  * Hide view with translate animation from top to bot
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.hideViewWithTranslateFromTopToBottom(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility == View.VISIBLE) {
@@ -112,8 +112,8 @@ fun View.hideViewWithTranslateFromTopToBottom(duration: Long = DEFAULT_ANIM_DURA
 /**
  * Translate view from left to right
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.translateFromLeftToRight(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     val transAnim = TranslateAnimation(
@@ -129,8 +129,8 @@ fun View.translateFromLeftToRight(duration: Long = DEFAULT_ANIM_DURATION, animat
 /**
  * Translate view from right to left
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.translateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     val transAnim = TranslateAnimation(
@@ -146,8 +146,8 @@ fun View.translateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURATION, animat
 /**
  * Hide view with translate animation from right to left
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.hideViewWithTranslateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility == View.VISIBLE) {
@@ -164,8 +164,8 @@ fun View.hideViewWithTranslateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURA
 /**
  * Show view with translate animation from right to left
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.showViewWithTranslateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility != View.VISIBLE) {
@@ -182,8 +182,8 @@ fun View.showViewWithTranslateFromRightToLeft(duration: Long = DEFAULT_ANIM_DURA
 /**
  * Hide view with translate animation from left to right
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.hideViewWithTranslateFromLeftToRight(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility == View.VISIBLE) {
@@ -200,8 +200,8 @@ fun View.hideViewWithTranslateFromLeftToRight(duration: Long = DEFAULT_ANIM_DURA
 /**
  * Show view with translate animation from left to right
  *
- * @param duration How long this animation should last. The duration cannot be negative.
- * @param animationListener The animation listener to be notified
+ * @param duration how long this animation should last. the duration cannot be negative.
+ * @param animationListener the animation listener to be notified
  */
 fun View.showViewWithTranslateFromLeftToRight(duration: Long = DEFAULT_ANIM_DURATION, animationListener: AnimationListener? = null) {
     if (visibility != View.VISIBLE) {

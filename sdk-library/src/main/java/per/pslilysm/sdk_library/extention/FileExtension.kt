@@ -9,7 +9,7 @@ package per.pslilysm.sdk_library.extention
  */
 
 /**
- * @return True if the chat is valid for android file system
+ * @return true if the chat is valid for android file system
  */
 fun Char.isFileNameCharValid(): Boolean {
     return if (this.code in 0x00..0x1f || this.code == 0x7F) {
@@ -21,7 +21,7 @@ fun Char.isFileNameCharValid(): Boolean {
 }
 
 /**
- * @return True if the file name is valid for android file system
+ * @return true if the file name is valid for android file system
  */
 fun String.isFileNameValid(): Boolean {
     toCharArray().forEach {
@@ -33,7 +33,7 @@ fun String.isFileNameValid(): Boolean {
 }
 
 /**
- * @return A new string which deleted all invalid file name char
+ * @return a new string which deleted all invalid file name char
  */
 fun String.deleteInvalidFileNameChar(): String {
     val chatList = toCharArray().toMutableList()

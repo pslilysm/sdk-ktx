@@ -22,12 +22,12 @@ fun Throwable.getRootCause(): Throwable {
 }
 
 /**
- * Rethrow a throwable as a [RuntimeException]
+ * Wrap throwable to [RuntimeException]
  *
  * @return a RuntimeException wrapped the original throwable
  */
 
-fun Throwable.rethrow(): RuntimeException {
+fun Throwable.toRuntime(): RuntimeException {
     return if (this is RuntimeException) {
         this
     } else {

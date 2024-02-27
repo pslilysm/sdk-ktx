@@ -37,11 +37,9 @@ dependencies {
     compileOnly("androidx.appcompat:appcompat:1.6.1")
 
     compileOnly("com.google.code.gson:gson:2.10.1")
-    compileOnly("com.tencent:mmkv:1.2.16")
-    compileOnly("commons-io:commons-io:2.15.1")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
-    compileOnly("org.apache.commons:commons-compress:1.21")
+    compileOnly("org.apache.commons:commons-compress:1.24.0")
 
     // https://mvnrepository.com/artifact/org.tukaani/xz
     compileOnly("org.tukaani:xz:1.9")

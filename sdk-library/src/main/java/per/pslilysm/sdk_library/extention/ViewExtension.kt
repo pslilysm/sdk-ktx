@@ -21,14 +21,14 @@ private val finishListener =
     View.OnClickListener { v: View -> (v.context as Activity).finish() }
 
 /**
- * @param visible If true the view will be visible else gone
+ * @param visible if true the view will be visible else gone
  */
 fun View.visibleOrGone(visible: Boolean) {
     this.visibility = if (visible) View.VISIBLE else View.GONE
 }
 
 /**
- * @param visible If true the view will be visible else invisible
+ * @param visible if true the view will be visible else invisible
  */
 fun View.visibleOrInvisible(visible: Boolean) {
     this.visibility = if (visible) View.VISIBLE else View.INVISIBLE
@@ -83,14 +83,14 @@ fun View.finishActivityWhenClick() {
 }
 
 /**
- * @return The height of ime
+ * @return the height of ime
  */
 fun View.getImeHeight(): Int {
     return ViewCompat.getRootWindowInsets(this)?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
 }
 
 /**
- * @return True if ime is visible
+ * @return true if ime is visible
  */
 fun View.isImeVisible(): Boolean {
     return ViewCompat.getRootWindowInsets(this)?.isVisible(WindowInsetsCompat.Type.ime()) == true

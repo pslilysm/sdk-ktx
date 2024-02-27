@@ -1,6 +1,5 @@
 package per.pslilysm.sdk_library.extention
 
-import androidx.collection.ArraySet
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -70,35 +69,16 @@ fun <T> String?.toObject(tClass: Class<T>): T? {
 }
 
 /**
- * Deserialize json to [Set]
- *
- * @param tClass Set's elements class
- * @param <T>    the type of the Set's element
- * @return a empty Set if json is empty string or empty array
- */
-
-fun <T> String?.toSet(tClass: Class<T>?): Set<T> {
-    val set: MutableSet<T> = ArraySet()
-    if (!isNullOrEmpty()) {
-        val array = JsonParser.parseString(this).asJsonArray
-        for (elem in array) {
-            set.add(gson.fromJson(elem, tClass))
-        }
-    }
-    return set
-}
-
-/**
  * Deserialize json to [List]
  *
- * @param tClass List's elements class
+ * @param tClass list's elements class
  * @param <T>    the type of the List's element
  * @return a empty List if json is empty string or empty array
  */
 
 fun <T> String?.toList(tClass: Class<T>?): MutableList<T> {
     val list: MutableList<T> = ArrayList()
-    if (!isNullOrEmpty()) {
+    if (this?.isNotEmpty() == true) {
         val array = JsonParser.parseString(this).asJsonArray
         for (elem in array) {
             list.add(gson.fromJson(elem, tClass))

@@ -41,8 +41,6 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    implementation("com.tencent:mmkv:1.2.16")
-
     implementation(project(":sdk-library"))
 
     implementation("com.google.code.gson:gson:2.10.1")

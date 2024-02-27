@@ -13,21 +13,21 @@ import android.content.Context
  */
 
 /**
- * @return A text without space
+ * @return a text without space
  */
 fun String.cleanSpace(): String {
     return replace("\\s+".toRegex(), "")
 }
 
 /**
- * @return A text without wrap
+ * @return a text without wrap
  */
 fun String.cleanWrap(): String {
     return replace("[\\s*\t\n\r]".toRegex(), "")
 }
 
 /**
- * @return Null if the text is empty
+ * @return null if the text is empty
  */
 fun String?.nullIfEmpty(): String? {
     return if (this?.isEmpty() == true) null else this

@@ -36,7 +36,7 @@ fun <T : Fragment?> FragmentManager.findOrCreateFmtInViewPager2(
             return try {
                 ReflectionUtil.newInstance(fmtClazz)
             } catch (e: ReflectiveOperationException) {
-                throw e.rethrow()
+                throw e.toRuntime()
             }
         }
     }, this, position)
