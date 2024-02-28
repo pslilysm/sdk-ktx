@@ -9,7 +9,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.internal.LinkedTreeMap
 import per.pslilysm.sdk_library.annotation.GsonExclude
-import per.pslilysm.sdk_library.util.reflection.ReflectionUtil
+import per.pslilysm.sdk_library.util.reflection.ReflectionUtil.getFieldValue
 
 /**
  * Extension for gson
@@ -101,10 +101,7 @@ fun <V> String?.toMap(vClass: Class<V>?): MutableMap<String, V> {
     }
     val jsonObject = gson.fromJson(this, JsonObject::class.java)
     try {
-        val members = ReflectionUtil.getFieldValue<LinkedTreeMap<String, JsonElement>>(
-            jsonObject,
-            "members"
-        )
+        val members = jsonObject.getFieldValue<LinkedTreeMap<String, JsonElement>>("members")
         members!!.forEach { (s: String, jsonElement: JsonElement?) ->
             result[s] = gson.fromJson(jsonElement, vClass)
         }

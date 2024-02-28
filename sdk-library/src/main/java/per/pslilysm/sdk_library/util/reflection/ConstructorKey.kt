@@ -1,13 +1,43 @@
 package per.pslilysm.sdk_library.util.reflection
 
-import java.util.*
+import per.pslilysm.sdk_library.util.concurrent.CASObjectPool
+import per.pslilysm.sdk_library.util.function.Linkable
+import per.pslilysm.sdk_library.util.function.Recyclable
+import java.util.Objects
 
 class ConstructorKey private constructor(
-    var clazz: Class<*>?,
-    var parameterTypes: Array<out Class<*>?>
-) {
-    private var inUse = false
-    private var next: ConstructorKey? = null
+    private var clazz: Class<*>? = null,
+    private var parameterTypes: Array<out Class<*>?> = emptyArray()
+) : Linkable<ConstructorKey>, Recyclable {
+
+    companion object {
+        private val objectPool = CASObjectPool(newObjSupplier = {
+            ConstructorKey()
+        })
+
+        fun Class<*>?.obtainCKey(vararg parameterTypes: Class<*>?): ConstructorKey {
+            val cKey = objectPool.obtain()
+            cKey.clazz = this
+            cKey.parameterTypes = parameterTypes
+            return cKey
+        }
+    }
+
+    private var nextObj: ConstructorKey? = null
+
+    override val next: ConstructorKey?
+        get() = nextObj
+
+    override fun setNext(next: ConstructorKey?) {
+        nextObj = next
+    }
+
+    override fun recycle() {
+        clazz = null
+        parameterTypes = emptyArray()
+        objectPool.recycle(this)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
@@ -22,40 +52,4 @@ class ConstructorKey private constructor(
         return result
     }
 
-    fun markInUse() {
-        inUse = true
-    }
-
-    fun recycle() {
-        check(!inUse) { "$this is in use, can't recycle" }
-        clazz = null
-        parameterTypes = emptyArray()
-        synchronized(ConstructorKey::class.java) {
-            if (poolSize < MAX_POOL_SIZE) {
-                next = pool
-                pool = this
-                poolSize++
-            }
-        }
-    }
-
-    companion object {
-        private const val MAX_POOL_SIZE = 10
-        private var pool: ConstructorKey? = null
-        private var poolSize = 0
-        fun obtain(clazz: Class<*>?, vararg parameterTypes: Class<*>?): ConstructorKey {
-            synchronized(ConstructorKey::class.java) {
-                if (pool != null) {
-                    val m = pool
-                    pool = m!!.next
-                    m.next = null
-                    poolSize--
-                    m.clazz = clazz
-                    m.parameterTypes = parameterTypes
-                    return m
-                }
-            }
-            return ConstructorKey(clazz, parameterTypes)
-        }
-    }
 }

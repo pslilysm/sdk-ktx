@@ -8,6 +8,7 @@ package per.pslilysm.sdk_library.util.concurrent
  * @since 1.0.0
  */
 interface ResourcePool<R> {
+
     /**
      * Get a resource of the poll, this method will blocking if poll is empty until a resource was returned or
      * current thread is interrupted
@@ -19,7 +20,7 @@ interface ResourcePool<R> {
     val resource: R?
 
     /**
-     * store a resource to pool, this method will notify a waiting thread after we store it.
+     * Store a resource to pool, this method will notify a waiting thread after we store it.
      *
      * @param r the resource we want to store
      */

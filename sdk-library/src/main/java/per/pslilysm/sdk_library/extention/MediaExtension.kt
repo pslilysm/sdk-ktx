@@ -9,7 +9,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.SystemClock
 import android.provider.MediaStore
-import per.pslilysm.sdk_library.application
+import per.pslilysm.sdk_library.app
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -180,12 +180,12 @@ fun InputStream.save2MediaStore(
 @Throws(IOException::class)
 fun Uri.copyToNewCacheFile(fileSuffix: String? = null): File {
     throwIfMainThread()
-    application.openInputStreamNotNull(this).use { `is` ->
+    app.openInputStreamNotNull(this).use { `is` ->
         var fileName = SystemClock.elapsedRealtimeNanos().toString()
         if (fileSuffix != null) {
             fileName += fileSuffix
         }
-        val newCacheFile = File(application.cacheDir, fileName)
+        val newCacheFile = File(app.cacheDir, fileName)
         FileOutputStream(newCacheFile).use {  fos ->
             `is`.copyTo(fos)
         }
