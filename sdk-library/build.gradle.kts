@@ -64,8 +64,6 @@ publishing {
             groupId = "com.github.pslilysm"
             artifactId = "sdk-ktx"
             version = versionConf
-
-            from(components["java"])
         }
     }
 }
