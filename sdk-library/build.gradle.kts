@@ -7,6 +7,7 @@ plugins {
 val compileSdkConf : String by project
 val minSdkConf : String by project
 val targetSdkConf : String by project
+val versionConf: String by project
 
 android {
     namespace = "per.pslilysm.sdk_library"
@@ -55,4 +56,16 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     compileOnly("commons-codec:commons-codec:1.16.0")
 
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.pslilysm"
+            artifactId = "sdk-ktx"
+            version = versionConf
+
+            from(components["java"])
+        }
+    }
 }
