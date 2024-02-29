@@ -1,11 +1,16 @@
 package per.pslilysm.sdk_library.util.reflection
 
-import androidx.collection.ArrayMap
-import per.pslilysm.sdk_library.util.Pair
+import per.pslilysm.sdk_library.app
+import per.pslilysm.sdk_library.util.reflection.ConstructorKey.Companion.obtainCKey
+import per.pslilysm.sdk_library.util.reflection.FieldKey.Companion.obtainFKey
+import per.pslilysm.sdk_library.util.reflection.MethodKey.Companion.obtainMKey
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+import java.util.function.Function
 
 /**
  * A util for reflection,
@@ -15,9 +20,10 @@ import java.util.*
  * @since 1.0.0
  */
 object ReflectionUtil {
-    private val constructors: MutableMap<ConstructorKey, Constructor<*>> by lazy { ArrayMap() }
-    private val fields: MutableMap<FieldKey, Field> by lazy { ArrayMap() }
-    private val methods: MutableMap<MethodKey, Method> by lazy { ArrayMap() }
+
+    private val constructorMap: ConcurrentMap<ConstructorKey, Constructor<*>> by lazy { ConcurrentHashMap() }
+    private val fieldMap: ConcurrentMap<FieldKey, Field> by lazy { ConcurrentHashMap() }
+    private val methodMap: ConcurrentMap<MethodKey, Method> by lazy { ConcurrentHashMap() }
     private val emptyParameterTypesAndArgs = emptyArray<Any>()
 
     /**
@@ -35,337 +41,279 @@ object ReflectionUtil {
         vararg parameterTypesAndArgs: Any?
     ): Pair<Array<out Class<*>?>, Array<Any?>> {
         require(parameterTypesAndArgs.size % 2 == 0) { "check your parameterTypesAndArgs length -> " + parameterTypesAndArgs.size }
-        if (parameterTypesAndArgs.isEmpty()) {
-            return Pair.obtain(emptyArray(), emptyArray())
-        }
-        val mixedParameterTypes =
-            Arrays.copyOf(parameterTypesAndArgs, parameterTypesAndArgs.size / 2)
-        val args = Arrays.copyOfRange(
-            parameterTypesAndArgs,
-            parameterTypesAndArgs.size / 2,
-            parameterTypesAndArgs.size
-        )
+        val mixedParameterTypes = Arrays.copyOf(parameterTypesAndArgs, parameterTypesAndArgs.size / 2)
+        val args = Arrays.copyOfRange(parameterTypesAndArgs, parameterTypesAndArgs.size / 2, parameterTypesAndArgs.size)
         val parameterTypes: Array<Class<*>?> = arrayOfNulls(mixedParameterTypes.size)
         for (i in mixedParameterTypes.indices) {
-            when (val pt = mixedParameterTypes[i]) {
-                is String -> {
-                    parameterTypes[i] = classLoader.loadClass(pt)
-                }
-
-                is Class<*> -> {
-                    parameterTypes[i] = pt
-                }
-
-                else -> {
-                    throw IllegalArgumentException("check your parameterTypes at pos " + i + ", type is " + pt!!.javaClass)
-                }
+            parameterTypes[i] = when (val pt = mixedParameterTypes[i]) {
+                is String -> classLoader.loadClass(pt)
+                is Class<*> -> pt
+                else -> throw IllegalArgumentException("check your parameterTypes at pos " + i + ", type is " + pt!!.javaClass)
             }
         }
-        return Pair.obtain(parameterTypes, args)
+        return parameterTypes to args
     }
 
     /**
      * Find in the cache or create `Constructor` by class and parameterTypes
+     *
+     * @param T the type of instance's class
+     * @param clazz instance's class
+     * @param parameterTypes the parameter array
+     * @return a new or cached constructor with given param
      */
     @Throws(ReflectiveOperationException::class)
     private fun <T> findOrCreateConstructor(
         clazz: Class<T>,
         vararg parameterTypes: Class<*>?
     ): Constructor<T> {
-        val constructorKey: ConstructorKey = ConstructorKey.obtain(clazz, *parameterTypes)
-        var constructor = constructors[constructorKey] as Constructor<T>?
-        if (constructor == null) {
-            synchronized(constructors) {
-                if ((constructors[constructorKey] as Constructor<T>?).also {
-                        constructor = it
-                    } == null) {
-                    constructor = try {
-                        clazz.getDeclaredConstructor(*parameterTypes)
-                    } catch (ex: NoSuchMethodException) {
-                        constructorKey.recycle()
-                        throw ex
-                    }
-                    constructor!!.isAccessible = true
-                    constructorKey.markInUse()
-                    constructors.put(constructorKey, constructor!!)
-                } else {
-                    constructorKey.recycle()
-                }
+        val constructorKey: ConstructorKey = clazz.obtainCKey(*parameterTypes)
+        val constructor = constructorMap.computeIfAbsent(constructorKey, Function {
+            return@Function try {
+                clazz.getDeclaredConstructor(*parameterTypes).apply { isAccessible = true }
+            } catch (ex: NoSuchMethodException) {
+                constructorKey.recycle()
+                throw ex
             }
-        } else {
-            constructorKey.recycle()
-        }
-        return constructor!!
+        }) as Constructor<T>
+        constructorKey.recycle()
+        return constructor
     }
 
     /**
      * Recursive find in the cache or create `Field` by class and fieldName
+     *
+     * @param clazz the class where the field is resides
+     * @param fieldName filed name
+     * @param originEX exception when reflection failure for the first time
+     * @return a new or cached field with given param
      */
     @Throws(ReflectiveOperationException::class)
-    private fun findOrCreateField(clazz: Class<*>, fieldName: String): Field {
-        val fieldKey: FieldKey = FieldKey.obtain(clazz, fieldName)
-        var field = fields[fieldKey]
-        if (field == null) {
-            synchronized(fields) {
-                if (fields[fieldKey].also { field = it } == null) {
-                    field = try {
-                        clazz.getDeclaredField(fieldName)
-                    } catch (ex: NoSuchFieldException) {
-                        fieldKey.recycle()
-                        val superClazz = clazz.superclass
-                        return if (superClazz != null && superClazz != Any::class.java) {
-                            findOrCreateField(superClazz, fieldName)
-                        } else {
-                            throw ex
-                        }
-                    }
-                    field!!.isAccessible = true
-                    fieldKey.markInUse()
-                    fields.put(fieldKey, field!!)
+    private fun findOrCreateField(clazz: Class<*>, fieldName: String, originEX: ReflectiveOperationException? = null): Field {
+        val fieldKey: FieldKey = clazz.obtainFKey(fieldName)
+        var originEXCopy: ReflectiveOperationException? = originEX
+        val field = fieldMap.computeIfAbsent(fieldKey, Function {
+            return@Function try {
+                clazz.getDeclaredField(fieldName).apply { isAccessible = true }
+            } catch (ex: NoSuchFieldException) {
+                if (originEXCopy == null) {
+                    originEXCopy = ex
+                }
+                fieldKey.recycle()
+                val superClazz = clazz.superclass
+                if (superClazz != null && superClazz != Any::class.java) {
+                    null
                 } else {
-                    fieldKey.recycle()
+                    throw originEXCopy!!
                 }
             }
-        } else {
-            fieldKey.recycle()
-        }
-        return field!!
+        }) ?: return findOrCreateField(clazz.superclass, fieldName, originEXCopy)
+        fieldKey.recycle()
+        return field
     }
 
     /**
-     * Recursive find in the cache or create `Method` by class and methodName and parameterTypes
+     * Recursive find in the cache or create `Method` by class, methodName, and parameterTypes
+     *
+     * @param clazz the class where the method is resides
+     * @param methodName method name
+     * @param originEX exception when reflection failure for the first time
+     * @param parameterTypes the parameter array
+     * @return a new or cached method with given param
      */
     @Throws(ReflectiveOperationException::class)
     private fun findOrCreateMethod(
         clazz: Class<*>,
         methodName: String,
+        originEX: ReflectiveOperationException? = null,
         vararg parameterTypes: Class<*>?
     ): Method {
-        val methodKey: MethodKey = MethodKey.obtain(clazz, methodName, *parameterTypes)
-        var method = methods[methodKey]
-        if (method == null) {
-            synchronized(methods) {
-                if (methods[methodKey].also { method = it } == null) {
-                    method = try {
-                        clazz.getDeclaredMethod(methodName, *parameterTypes)
-                    } catch (ex: NoSuchMethodException) {
-                        methodKey.recycle()
-                        val superClazz = clazz.superclass
-                        return if (superClazz != null && superClazz != Any::class.java) {
-                            findOrCreateMethod(superClazz, methodName, *parameterTypes)
-                        } else {
-                            throw ex
-                        }
-                    }
-                    method!!.isAccessible = true
-                    methodKey.markInUse()
-                    methods.put(methodKey, method!!)
+        val methodKey: MethodKey = clazz.obtainMKey(methodName, *parameterTypes)
+        var originEXCopy: ReflectiveOperationException? = originEX
+        val method = methodMap.computeIfAbsent(methodKey, Function {
+            return@Function try {
+                clazz.getDeclaredMethod(methodName, *parameterTypes).apply { isAccessible = true }
+            } catch (ex: NoSuchMethodException) {
+                if (originEXCopy == null) {
+                    originEXCopy = ex
+                }
+                ex.initCause(originEX)
+                methodKey.recycle()
+                val superClazz = clazz.superclass
+                if (superClazz != null && superClazz != Any::class.java) {
+                    null
                 } else {
-                    methodKey.recycle()
+                    throw originEXCopy!!
                 }
             }
-        } else {
-            methodKey.recycle()
-        }
-        return method!!
+        }) ?: return findOrCreateMethod(clazz.superclass, methodName, originEXCopy, *parameterTypes)
+        methodKey.recycle()
+        return method
     }
 
-    @Throws(ReflectiveOperationException::class)
-    fun <T> newInstance(className: String?): T {
-        return newInstance(
-            className,
-            *emptyParameterTypesAndArgs
-        )
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> newInstance(className: String?, classLoader: ClassLoader): T {
-        return newInstance(className, classLoader, *emptyParameterTypesAndArgs)
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> newInstance(className: String?, vararg parameterTypesAndArgs: Any?): T {
-        return newInstance(className, ClassLoader.getSystemClassLoader(), *parameterTypesAndArgs)
-    }
-
+    /**
+     * New instance
+     *
+     * @param T the type of instance
+     * @param className instance's class name
+     * @param classLoader is for load class via class name in the ptAndArgs
+     * @param ptAndArgs the first half is the class name or class, and the second half is args
+     * @return a new instance with given param
+     */
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(
         className: String?,
-        classLoader: ClassLoader,
-        vararg parameterTypesAndArgs: Any?
+        classLoader: ClassLoader = app.classLoader,
+        vararg ptAndArgs: Any? = emptyParameterTypesAndArgs
     ): T {
-        return newInstance(
-            classLoader.loadClass(className),
-            *parameterTypesAndArgs
-        ) as T
+        return newInstance(clazz = classLoader.loadClass(className), ptAndArgs = ptAndArgs) as T
     }
 
-    @Throws(ReflectiveOperationException::class)
-    fun <T> newInstance(clazz: Class<T>): T {
-        return newInstance(clazz, *emptyParameterTypesAndArgs)
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> newInstance(clazz: Class<T>, vararg parameterTypesAndArgs: Any?): T {
-        val classLoader =
-            if (clazz.classLoader == null) ClassLoader.getSystemClassLoader() else clazz.classLoader
-        return newInstance(clazz, classLoader, *parameterTypesAndArgs)
-    }
-
+    /**
+     * New instance
+     *
+     * @param T the type of instance
+     * @param clazz instance's clazz
+     * @param classLoader is for load class via class name in the ptAndArgs
+     * @param ptAndArgs the first half is the class name or class, and the second half is the args
+     * @return a new instance with given param
+     */
     @Throws(ReflectiveOperationException::class)
     fun <T> newInstance(
         clazz: Class<T>,
-        classLoader: ClassLoader,
-        vararg parameterTypesAndArgs: Any?
+        classLoader: ClassLoader = clazz.classLoader ?: app.classLoader,
+        vararg ptAndArgs: Any? = emptyParameterTypesAndArgs
     ): T {
-        val splitParameterTypesAndArgs =
-            splitParameterTypesAndArgs(classLoader, *parameterTypesAndArgs)
-        val instance =
-            splitParameterTypesAndArgs.first()!!.let { paramTypes ->
-                splitParameterTypesAndArgs.second()!!.let { args ->
-                    findOrCreateConstructor(clazz, *paramTypes)
-                        .newInstance(*args)
-                }
-            }
-        splitParameterTypesAndArgs.recycle()
-        return instance
+        val splitPtAndArgs = splitParameterTypesAndArgs(classLoader, *ptAndArgs)
+        return findOrCreateConstructor(clazz, *splitPtAndArgs.first).newInstance(*splitPtAndArgs.second)
     }
 
+    /**
+     * Get field value
+     *
+     * @param T the type of field
+     * @param fieldName field's name
+     * @return the field's value in the object
+     */
     @Throws(ReflectiveOperationException::class)
-    fun <T> getFieldValue(`object`: Any?, fieldName: String): T? {
-        return findOrCreateField(`object`!!.javaClass, fieldName)[`object`] as T
+    fun <T> Any.getFieldValue(fieldName: String): T? {
+        return findOrCreateField(this.javaClass, fieldName)[this] as T
     }
 
+    /**
+     * Set field value
+     *
+     * @param fieldName field's name
+     * @param fieldValue field's value
+     */
     @Throws(ReflectiveOperationException::class)
-    fun setFieldValue(`object`: Any, fieldName: String, fieldValue: Any?) {
-        findOrCreateField(`object`.javaClass, fieldName)[`object`] = fieldValue
+    fun Any.setFieldValue(fieldName: String, fieldValue: Any?) {
+        findOrCreateField(this.javaClass, fieldName)[this] = fieldValue
     }
 
+    /**
+     * Invoke method
+     *
+     * @param T the type returned by the method call
+     * @param methodName method name
+     * @param ptAndArgs The first half is the class or class name parameters required for function calls, and the second half is the args
+     * @return result of method call
+     */
     @Throws(ReflectiveOperationException::class)
-    fun <T> invokeMethod(`object`: Any, methodName: String): T? {
-        return invokeMethod(`object`, methodName, *emptyParameterTypesAndArgs)
+    fun <T> Any.invokeMethod(methodName: String, vararg ptAndArgs: Any? = emptyParameterTypesAndArgs): T? {
+        val clazz: Class<*> = this.javaClass
+        val classLoader = clazz.classLoader ?: app.classLoader
+        val ptAndArgs = splitParameterTypesAndArgs(classLoader, *ptAndArgs)
+        return findOrCreateMethod(clazz, methodName, null, *ptAndArgs.first)
+            .invoke(this, *ptAndArgs.second) as T
     }
 
-    @Throws(ReflectiveOperationException::class)
-    fun <T> invokeMethod(
-        `object`: Any,
-        methodName: String,
-        vararg parameterTypesAndArgs: Any?
-    ): T? {
-        val clazz: Class<*> = `object`.javaClass
-        val classLoader =
-            if (clazz.classLoader == null) ClassLoader.getSystemClassLoader() else clazz.classLoader
-        val splitParameterTypesAndArgs =
-            splitParameterTypesAndArgs(classLoader, *parameterTypesAndArgs)
-        val result =
-            splitParameterTypesAndArgs.first()!!.let { paramTypes ->
-                splitParameterTypesAndArgs.second()!!.let { args ->
-                    findOrCreateMethod(clazz, methodName, *paramTypes)
-                        .invoke(`object`, *args) as T
-                }
-            }
-        splitParameterTypesAndArgs.recycle()
-        return result
-    }
-
+    /**
+     * Get static field value
+     *
+     * @param T the type of field
+     * @param className class name
+     * @param fieldName filed name
+     * @return the static field's value in the class
+     */
     @Throws(ReflectiveOperationException::class)
     fun <T> getStaticFieldValue(className: String, fieldName: String): T? {
-        return getStaticFieldValue(Class.forName(className), fieldName)
+        return getStaticFieldValue(app.classLoader.loadClass(className), fieldName)
     }
 
-    @Throws(ReflectiveOperationException::class)
-    fun <T> getStaticFieldValue(
-        className: String,
-        classLoader: ClassLoader,
-        fieldName: String
-    ): T? {
-        return getStaticFieldValue(classLoader.loadClass(className), fieldName)
-    }
-
+    /**
+     * Get static field value
+     *
+     * @param T the type of field
+     * @param clazz class
+     * @param fieldName filed name
+     * @return the static field's value in the class
+     */
     @Throws(ReflectiveOperationException::class)
     fun <T> getStaticFieldValue(clazz: Class<*>, fieldName: String): T? {
         return findOrCreateField(clazz, fieldName)[null] as T
     }
 
+    /**
+     * Set static filed value
+     *
+     * @param className the class name of the class where the field is resides
+     * @param fieldName field's name
+     * @param fieldValue field's value
+     */
     @Throws(ReflectiveOperationException::class)
     fun setStaticFiledValue(className: String, fieldName: String, fieldValue: Any?) {
-        setStaticFiledValue(Class.forName(className), fieldName, fieldValue)
+        setStaticFiledValue(app.classLoader.loadClass(className), fieldName, fieldValue)
     }
 
-    @Throws(ReflectiveOperationException::class)
-    fun setStaticFiledValue(
-        className: String?,
-        classLoader: ClassLoader,
-        fieldName: String,
-        fieldValue: Any?
-    ) {
-        setStaticFiledValue(classLoader.loadClass(className), fieldName, fieldValue)
-    }
-
+    /**
+     * Set static filed value
+     *
+     * @param clazz the class where the field is resides
+     * @param fieldName field's name
+     * @param fieldValue field's value
+     */
     @Throws(ReflectiveOperationException::class)
     fun setStaticFiledValue(clazz: Class<*>, fieldName: String, fieldValue: Any?) {
         findOrCreateField(clazz, fieldName)[null] = fieldValue
     }
 
+    /**
+     * Invoke static method
+     *
+     * @param T the type returned by the method call
+     * @param className the class name of the class where the method is resides
+     * @param methodName method name
+     * @param ptAndArgs the first half is the class or class name parameters required for function calls, and the second half is the args
+     * @return result of method call
+     */
     @Throws(ReflectiveOperationException::class)
-    fun <T : Any> invokeStaticMethod(className: String, methodName: String): T? {
-        return invokeStaticMethod(
-            ClassLoader.getSystemClassLoader().loadClass(className),
-            methodName,
-            *emptyParameterTypesAndArgs
-        )
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> invokeStaticMethod(
+    fun <T : Any> invokeStaticMethod(
         className: String,
-        classLoader: ClassLoader,
-        methodName: String
-    ): T? {
-        return invokeStaticMethod(
-            classLoader.loadClass(className),
-            methodName,
-            *emptyParameterTypesAndArgs
-        )
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> invokeStaticMethod(clazz: Class<*>, methodName: String): T? {
-        return invokeStaticMethod(clazz, methodName, *emptyParameterTypesAndArgs)
-    }
-
-    @Throws(ReflectiveOperationException::class)
-    fun <T> invokeStaticMethod(
-        className: String,
-        classLoader: ClassLoader,
         methodName: String,
-        vararg parameterTypesAndArgs: Any?
+        vararg ptAndArgs: Any? = emptyParameterTypesAndArgs
     ): T? {
-        return invokeStaticMethod(
-            classLoader.loadClass(className),
-            methodName,
-            *parameterTypesAndArgs
-        )
+        return invokeStaticMethod(app.classLoader.loadClass(className), methodName, ptAndArgs)
     }
 
+    /**
+     * Invoke static method
+     *
+     * @param T the type returned by the method call
+     * @param clazz the class where the method is resides
+     * @param methodName method name
+     * @param ptAndArgs the first half is the class or class name parameters required for function calls, and the second half is the args
+     * @return result of method call
+     */
     @Throws(ReflectiveOperationException::class)
     fun <T> invokeStaticMethod(
         clazz: Class<*>,
         methodName: String,
-        vararg parameterTypesAndArgs: Any?
+        vararg ptAndArgs: Any? = emptyParameterTypesAndArgs
     ): T? {
-        val classLoader =
-            if (clazz.classLoader == null) ClassLoader.getSystemClassLoader() else clazz.classLoader
-        val splitParameterTypesAndArgs =
-            splitParameterTypesAndArgs(classLoader, *parameterTypesAndArgs)
-        val result =
-            splitParameterTypesAndArgs.first()!!.let { paramTypes ->
-                splitParameterTypesAndArgs.second()!!.let { args ->
-                    findOrCreateMethod(clazz, methodName, *paramTypes)
-                        .invoke(null, *args) as T
-                }
-            }
-        splitParameterTypesAndArgs.recycle()
-        return result
+        val classLoader = clazz.classLoader ?: app.classLoader
+        val splitPtAndArgs = splitParameterTypesAndArgs(classLoader, *ptAndArgs)
+        return findOrCreateMethod(clazz, methodName, null, *splitPtAndArgs.first)
+            .invoke(null, *splitPtAndArgs.second) as T
     }
 }

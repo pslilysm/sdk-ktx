@@ -4,13 +4,17 @@ plugins {
     id("kotlin-kapt")
 }
 
+val compileSdkConf : String by project
+val minSdkConf : String by project
+val targetSdkConf : String by project
+
 android {
     namespace = "per.pslilysm.sdk_ktx"
-    compileSdk = rootProject.extra["compileSdk"] as Int
+    compileSdk = compileSdkConf.toInt()
 
     defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-        targetSdk = rootProject.extra["targetSdk"] as Int
+        minSdk = minSdkConf.toInt()
+        targetSdk = targetSdkConf.toInt()
         versionCode = 1
         versionName = "1.0"
     }
@@ -40,8 +44,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    implementation("com.tencent:mmkv:1.2.16")
 
     implementation(project(":sdk-library"))
 

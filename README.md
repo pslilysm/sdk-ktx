@@ -30,7 +30,7 @@ dependencyResolutionManagement {
 dependencies {
     // add sdk-ktx to your dependencies
     // proguard bundled in aar
-    implementation 'com.github.pslilysm:sdk-ktx:2.3.0'
+    implementation 'com.github.pslilysm:sdk-ktx:2.3.5'
 }
 ```
     or in build.gradle.kts
@@ -38,7 +38,7 @@ dependencies {
 dependencies {
     // add sdk-ktx to your dependencies
     // proguard bundled in aar
-    implementation("com.github.pslilysm:sdk-ktx:2.3.0")
+    implementation("com.github.pslilysm:sdk-ktx:2.3.5")
 }
 ```
 

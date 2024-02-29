@@ -1,14 +1,47 @@
 package per.pslilysm.sdk_library.util.reflection
 
-import java.util.*
+import per.pslilysm.sdk_library.util.concurrent.CASObjectPool
+import per.pslilysm.sdk_library.util.function.Linkable
+import per.pslilysm.sdk_library.util.function.Recyclable
+import java.util.Objects
 
-class FieldKey private constructor(var clazz: Class<*>?, var filedName: String?) {
-    private var inUse = false
-    private var next: FieldKey? = null
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val fieldKey = o as FieldKey
+class FieldKey private constructor(
+    var clazz: Class<*>? = null,
+    var filedName: String? = null
+) : Linkable<FieldKey>, Recyclable {
+
+    companion object {
+        private val objectPool = CASObjectPool(newObjSupplier = {
+            FieldKey()
+        })
+
+        fun Class<*>?.obtainFKey(filedName: String?): FieldKey {
+            val fKey = objectPool.obtain()
+            fKey.clazz = this
+            fKey.filedName = filedName
+            return fKey
+        }
+    }
+
+    private var nextObj: FieldKey? = null
+
+    override val next: FieldKey?
+        get() = nextObj
+
+    override fun setNext(next: FieldKey?) {
+        nextObj = next
+    }
+
+    override fun recycle() {
+        clazz = null
+        filedName = null
+        objectPool.recycle(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val fieldKey = other as FieldKey
         return clazz == fieldKey.clazz &&
                 filedName == fieldKey.filedName
     }
@@ -17,40 +50,4 @@ class FieldKey private constructor(var clazz: Class<*>?, var filedName: String?)
         return Objects.hash(clazz, filedName)
     }
 
-    fun markInUse() {
-        inUse = true
-    }
-
-    fun recycle() {
-        check(!inUse) { "$this is in use, can't recycle" }
-        clazz = null
-        filedName = null
-        synchronized(FieldKey::class.java) {
-            if (poolSize < MAX_POOL_SIZE) {
-                next = pool
-                pool = this
-                poolSize++
-            }
-        }
-    }
-
-    companion object {
-        private const val MAX_POOL_SIZE = 10
-        private var pool: FieldKey? = null
-        private var poolSize = 0
-        fun obtain(clazz: Class<*>?, filedName: String?): FieldKey {
-            synchronized(FieldKey::class.java) {
-                if (pool != null) {
-                    val fk = pool
-                    pool = fk!!.next
-                    fk.next = null
-                    poolSize--
-                    fk.clazz = clazz
-                    fk.filedName = filedName
-                    return fk
-                }
-            }
-            return FieldKey(clazz, filedName)
-        }
-    }
 }

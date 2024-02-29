@@ -70,7 +70,7 @@ val pattern_0d0DecimalFormat: DecimalFormat
     }
 
 /**
- * @return A formatted file size string with adaptive pattern
+ * @return a formatted file size string with adaptive pattern
  */
 fun Long.autoFormatFileSize(): String {
     return if (this > TB_SIZE) {
@@ -111,7 +111,7 @@ private fun Float.getAdaptiveFormatter(): DecimalFormat {
 }
 
 /**
- * @return A formatted media duration string with pattern "HHmmss"
+ * @return a formatted media duration string with pattern "HHmmss"
  */
 fun Long.formatMediaDurationWithHHmmss(): String {
     var durationSec = this / 1000
@@ -149,7 +149,7 @@ fun Long.formatMediaDurationWithHHmmss(): String {
 }
 
 /**
- * @return A formatted media duration string with pattern "mmssSSS"
+ * @return a formatted media duration string with pattern "mmssSSS"
  */
 fun Long.formatMediaDurationWithmmssSSS(): String {
     var durationSec = this / 1000
@@ -183,7 +183,7 @@ fun Long.formatMediaDurationWithmmssSSS(): String {
 }
 
 /**
- * @return A formatted media duration string with pattern "mmss"
+ * @return a formatted media duration string with pattern "mmss"
  */
 fun Long.formatMediaDurationWithmmss(): String {
     var durationSec = this / 1000

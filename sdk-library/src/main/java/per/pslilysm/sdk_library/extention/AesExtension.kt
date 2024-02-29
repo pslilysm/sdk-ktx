@@ -32,7 +32,7 @@ private val defaultEncryptCipher by lazy {
         )
         cipher
     } catch (ex: Exception) {
-        throw ex.rethrow()
+        throw ex.toRuntime()
     }
 }
 
@@ -48,45 +48,45 @@ private val defaultDecryptCipher by lazy {
         )
         cipher
     } catch (ex: Exception) {
-        throw ex.rethrow()
+        throw ex.toRuntime()
     }
 }
 
 /**
  * Encrypt the string with default aes config
  *
- * @return A encrypted Base64 String
+ * @return a encrypted Base64 String
  */
 fun String.encrypt(): String {
     return try {
         val bytes = defaultEncryptCipher.doFinal(toByteArray(StandardCharsets.UTF_8))
         Base64.encodeToString(bytes, Base64.NO_WRAP)
     } catch (e: Exception) {
-        throw e.rethrow()
+        throw e.toRuntime()
     }
 }
 
 /**
  * Decrypt the string with default aes config
  *
- * @return A decrypted Base64 String
+ * @return a decrypted Base64 String
  */
 fun String.decrypt(): String {
     return try {
         String(defaultDecryptCipher.doFinal(Base64.decode(this, Base64.NO_WRAP)), StandardCharsets.UTF_8)
     } catch (e: Exception) {
-        throw e.rethrow()
+        throw e.toRuntime()
     }
 }
 
 /**
  * Encrypt the string with given config
  *
- * @param mode The name of the cipher mode, e.g.,
+ * @param mode the name of the cipher mode, e.g.,
  * <i>DES/CBC/PKCS5Padding</i>.
- * @param key The encryption key
- * @param params The algorithm parameters
- * @return A encrypted Base64 String
+ * @param key the encryption key
+ * @param params the algorithm parameters
+ * @return a encrypted Base64 String
  */
 fun String.encrypt(mode: String, key: Key, params: AlgorithmParameterSpec): String {
     return try {
@@ -95,18 +95,18 @@ fun String.encrypt(mode: String, key: Key, params: AlgorithmParameterSpec): Stri
         val bytes = cipher.doFinal(toByteArray(StandardCharsets.UTF_8))
         Base64.encodeToString(bytes, Base64.NO_WRAP)
     } catch (e: Exception) {
-        throw e.rethrow()
+        throw e.toRuntime()
     }
 }
 
 /**
  * Decrypt the string with given config
  *
- * @param mode The name of the cipher mode, e.g.,
+ * @param mode the name of the cipher mode, e.g.,
  * <i>DES/CBC/PKCS5Padding</i>.
- * @param key The encryption key
- * @param params The algorithm parameters
- * @return A decrypted Base64 String
+ * @param key the encryption key
+ * @param params the algorithm parameters
+ * @return a decrypted Base64 String
  */
 fun String.decrypt(mode: String, key: Key, params: AlgorithmParameterSpec): String {
     return try {
@@ -114,6 +114,6 @@ fun String.decrypt(mode: String, key: Key, params: AlgorithmParameterSpec): Stri
         cipher.init(Cipher.DECRYPT_MODE, key, params)
         String(cipher.doFinal(Base64.decode(this, Base64.NO_WRAP)), StandardCharsets.UTF_8)
     } catch (e: Exception) {
-        throw e.rethrow()
+        throw e.toRuntime()
     }
 }

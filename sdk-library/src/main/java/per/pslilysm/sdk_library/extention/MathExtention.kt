@@ -17,8 +17,8 @@ import kotlin.math.sin
 /**
  * Calculate angle between two points
  *
- * @param another Second point
- * @return Calculated angle
+ * @param another second point
+ * @return calculated angle
  */
 fun Pair<Float, Float>.calculateAngle(another: Pair<Float, Float>): Float {
     var angle = Math.toDegrees(atan2((this.second - another.second).toDouble(), (this.first - another.first).toDouble())).toFloat()
@@ -29,9 +29,9 @@ fun Pair<Float, Float>.calculateAngle(another: Pair<Float, Float>): Float {
 }
 
 /**
- * Calculate the point is in the rect
+ * calculate the point is in the rect
  *
- * @return True if the point in the rect
+ * @return true if the point in the rect
  */
 fun Pair<Float, Float>.isInRect(pointList: List<Pair<Float, Float>>): Boolean {
     val n = pointList.size // n=4
@@ -48,7 +48,7 @@ fun Pair<Float, Float>.isInRect(pointList: List<Pair<Float, Float>>): Boolean {
 /**
  * Calculate the area by 3 points
  *
- * @return Calculated area
+ * @return calculated area
  */
 fun List<Pair<Float, Float>>.calculateArea(): Float {
     assert(this.size == 3)
@@ -58,9 +58,9 @@ fun List<Pair<Float, Float>>.calculateArea(): Float {
 /**
  * Calculate the 4 points after the rect is scaled and rotated
  *
- * @param scale From 0 to max
- * @param rotate From -360 to 360
- * @return Calculated 4 points
+ * @param scale from 0 to max
+ * @param rotate from -360 to 360
+ * @return calculated 4 points
  */
 fun RectF.calculatePointsWithScaleRotate(scale: Float, rotate: Float): List<Pair<Float, Float>> {
     var rotateFix = rotate

@@ -1,15 +1,21 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    `maven-publish`
 }
+
+val compileSdkConf : String by project
+val minSdkConf : String by project
+val targetSdkConf : String by project
+val versionConf: String by project
 
 android {
     namespace = "per.pslilysm.sdk_library"
-    compileSdk = rootProject.extra["compileSdk"] as Int
+    compileSdk = compileSdkConf.toInt()
 
     defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-        testOptions.targetSdk = rootProject.extra["targetSdk"] as Int
+        minSdk = minSdkConf.toInt()
+        testOptions.targetSdk = targetSdkConf.toInt()
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -37,11 +43,9 @@ dependencies {
     compileOnly("androidx.appcompat:appcompat:1.6.1")
 
     compileOnly("com.google.code.gson:gson:2.10.1")
-    compileOnly("com.tencent:mmkv:1.2.16")
-    compileOnly("commons-io:commons-io:2.15.1")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
-    compileOnly("org.apache.commons:commons-compress:1.21")
+    compileOnly("org.apache.commons:commons-compress:1.24.0")
 
     // https://mvnrepository.com/artifact/org.tukaani/xz
     compileOnly("org.tukaani:xz:1.9")
@@ -52,4 +56,15 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     compileOnly("commons-codec:commons-codec:1.16.0")
 
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("publishAar") {
+            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+            groupId = "com.github.pslilysm"
+            artifactId = "sdk-ktx"
+            version = versionConf
+        }
+    }
 }

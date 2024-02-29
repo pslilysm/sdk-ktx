@@ -9,13 +9,12 @@ import android.os.Build
 import android.os.Environment
 import android.os.SystemClock
 import android.provider.MediaStore
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
-import per.pslilysm.sdk_library.application
+import per.pslilysm.sdk_library.app
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.CountDownLatch
@@ -28,14 +27,50 @@ import java.util.concurrent.CountDownLatch
  * @since 2.2.0
  */
 
+interface MediaSaveErrorPolicy {
+
+    /**
+     * Run policy
+     *
+     * @param e the exception when save, may null
+     * @return a uri after the policy proceed
+     */
+    fun runPolicy(e: Throwable?): Uri?
+
+}
+
+class IncreaseFileNameTimesPolicy(
+    private val inputStream: InputStream,
+    private val context: Context,
+    private val displayName: String,
+    private val relativePath: String,
+    private val mediaExternalUri: Uri,
+    private val maxSaveTimes: Int = 10
+) : MediaSaveErrorPolicy {
+
+    private var saveTimes = 0
+
+    override fun runPolicy(e: Throwable?): Uri? {
+        saveTimes++
+        if (saveTimes > maxSaveTimes) {
+            return null
+        }
+        val newName = "${displayName.substringBeforeLast(".")}($saveTimes)" +
+                displayName.substringAfterLast('.', "")
+        return inputStream.save2MediaStore(
+            context, newName,
+            relativePath, mediaExternalUri, this
+        )
+    }
+}
+
 fun File.save2MediaStoreAsImage(
     context: Context,
     relativePath: String = Environment.DIRECTORY_DCIM,
     displayName: String,
-    alternativeDisplayName: String? = null
 ): Uri? {
     return try {
-        FileInputStream(this).save2MediaStoreAsImage(context, relativePath, displayName, alternativeDisplayName)
+        FileInputStream(this).save2MediaStoreAsImage(context, relativePath, displayName)
     } catch (e: IOException) {
         null
     }
@@ -44,95 +79,95 @@ fun File.save2MediaStoreAsImage(
 /**
  * Save the picture to gallery via InputStream
  *
- * @return The media's uri if success or null
+ * @return the media's uri if success or null
  */
 fun InputStream.save2MediaStoreAsImage(
     context: Context,
     relativePath: String = Environment.DIRECTORY_DCIM,
     displayName: String,
-    alternativeDisplayName: String? = null
 ): Uri? {
-    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
  * Save the audio to MediaStore via InputStream
  *
- * @return The media's uri if success or null
+ * @return the media's uri if success or null
  */
 fun InputStream.save2MediaStoreAsAudio(
     context: Context,
-    relativePath: String = Environment.DIRECTORY_DCIM,
+    relativePath: String = Environment.DIRECTORY_MUSIC,
     displayName: String,
-    alternativeDisplayName: String? = null
 ): Uri? {
-    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
  * Save the audio to MediaStore via InputStream
  *
- * @return The media's uri if success or null
+ * @return the media's uri if success or null
  */
 fun InputStream.save2MediaStoreAsVideo(
     context: Context,
     relativePath: String = Environment.DIRECTORY_DCIM,
     displayName: String,
-    alternativeDisplayName: String? = null
 ): Uri? {
-    return this.save2MediaStore(context, displayName, alternativeDisplayName, relativePath, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+    return this.save2MediaStore(context, displayName, relativePath, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
 }
 
 /**
  * Save the media to MediaStore via InputStream
  *
- * @return The media's uri if success or null
+ * @return the media's uri if success or null
  */
 fun InputStream.save2MediaStore(
     context: Context,
     displayName: String,
-    alternativeDisplayName: String?,
     relativePath: String,
-    mediaExternalUri: Uri
+    mediaExternalUri: Uri,
+    mediaSaveErrorPolicy: MediaSaveErrorPolicy? = IncreaseFileNameTimesPolicy(
+        this, context, displayName, relativePath, mediaExternalUri
+    )
 ): Uri? {
     throwIfMainThread()
+    val contentResolver = context.contentResolver
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val contentResolver = context.contentResolver
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
-        contentValues.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis())
-        contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis())
-        val uri = contentResolver.insert(mediaExternalUri, contentValues)
+        val uri = contentResolver.insert(mediaExternalUri, ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+            put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis())
+            put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis())
+        })
         uri?.let {
             try {
-                this.use { `is` ->
-                    contentResolver.openOutputStream(uri).use { os ->
-                        IOUtils.copy(`is`, os)
-                    }
+                contentResolver.openOutputStream(uri)?.use { os ->
+                    this.copyTo(os)
                 }
-            } catch (_: Exception) {
+            } catch (ex: Exception) {
+                return mediaSaveErrorPolicy?.runPolicy(ex)
             }
         }
-        return if (uri == null && !alternativeDisplayName.isNullOrEmpty()) {
-            save2MediaStore(context, alternativeDisplayName, null, relativePath, mediaExternalUri)
-        } else {
-            uri
-        }
+        return uri ?: mediaSaveErrorPolicy?.runPolicy(null)
     } else {
         var result: Uri? = null
         val countDownLatch = CountDownLatch(1)
-        val originalOutFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
-        FileUtils.forceMkdirParent(originalOutFile)
-        val outFile = originalOutFile.addTimesIfExit(alternativeDisplayName = alternativeDisplayName) ?: return null
+        val outFile = File(Environment.getExternalStorageDirectory(), relativePath + File.separator + displayName)
+        if (outFile.parentFile?.exists() != true) {
+            outFile.parentFile?.mkdirs()
+        }
+        if (outFile.exists()) {
+            return mediaSaveErrorPolicy?.runPolicy(FileAlreadyExistsException(outFile))
+        }
         try {
-            FileUtils.copyInputStreamToFile(this@save2MediaStore, outFile)
-            MediaScannerConnection.scanFile(application, arrayOf(outFile.absolutePath), null) { _, uri ->
+            FileOutputStream(outFile).use { fos ->
+                this.copyTo(fos)
+            }
+            MediaScannerConnection.scanFile(context.applicationContext, arrayOf(outFile.absolutePath), null) { _, uri ->
                 result = uri
                 countDownLatch.countDown()
             }
-        } catch (_: Exception) {
-            countDownLatch.countDown()
+        } catch (ex: Exception) {
+            return mediaSaveErrorPolicy?.runPolicy(ex)
         }
         countDownLatch.await()
         return result
@@ -140,48 +175,20 @@ fun InputStream.save2MediaStore(
 }
 
 /**
- * @return A file that are not duplicated on the disk
- */
-fun File.addTimesIfExit(times: Int = 1, alternativeDisplayName: String?): File? {
-    try {
-        return if (times >= 100) {
-            if (alternativeDisplayName.isNullOrEmpty()) {
-                null
-            } else {
-                File(parentFile, alternativeDisplayName)
-            }
-        } else if (!createNewFile()) {
-            val file = File(parentFile, "$nameWithoutExtension($times).$extension")
-            if (!file.createNewFile()) {
-                addTimesIfExit(times + 1, alternativeDisplayName)
-            } else {
-                file
-            }
-        } else {
-            this
-        }
-    } catch (e: IOException) {
-        return if (alternativeDisplayName.isNullOrEmpty()) {
-            null
-        } else {
-            File(parentFile, alternativeDisplayName)
-        }
-    }
-}
-
-/**
- * @return A new cache file copied by the uri
+ * @return a new cache file copied by the uri
  */
 @Throws(IOException::class)
 fun Uri.copyToNewCacheFile(fileSuffix: String? = null): File {
     throwIfMainThread()
-    application.openInputStreamNotNull(this).use { `is` ->
+    app.openInputStreamNotNull(this).use { `is` ->
         var fileName = SystemClock.elapsedRealtimeNanos().toString()
         if (fileSuffix != null) {
             fileName += fileSuffix
         }
-        val newCacheFile = File(application.cacheDir, fileName)
-        FileUtils.copyInputStreamToFile(`is`, newCacheFile)
+        val newCacheFile = File(app.cacheDir, fileName)
+        FileOutputStream(newCacheFile).use {  fos ->
+            `is`.copyTo(fos)
+        }
         return newCacheFile
     }
 }
