@@ -60,7 +60,8 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("publishAar") {
+            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
             groupId = "com.github.pslilysm"
             artifactId = "sdk-ktx"
             version = versionConf
