@@ -223,9 +223,9 @@ object ReflectionUtil {
     fun <T> Any.invokeMethod(methodName: String, vararg ptAndArgs: Any? = emptyParameterTypesAndArgs): T? {
         val clazz: Class<*> = this.javaClass
         val classLoader = clazz.classLoader ?: app.classLoader
-        val ptAndArgs = splitParameterTypesAndArgs(classLoader, *ptAndArgs)
-        return findOrCreateMethod(clazz, methodName, null, *ptAndArgs.first)
-            .invoke(this, *ptAndArgs.second) as T
+        val splitPtAndArgs = splitParameterTypesAndArgs(classLoader, *ptAndArgs)
+        return findOrCreateMethod(clazz, methodName, null, *splitPtAndArgs.first)
+            .invoke(this, *splitPtAndArgs.second) as T
     }
 
     /**
@@ -293,7 +293,7 @@ object ReflectionUtil {
         methodName: String,
         vararg ptAndArgs: Any? = emptyParameterTypesAndArgs
     ): T? {
-        return invokeStaticMethod(app.classLoader.loadClass(className), methodName, ptAndArgs)
+        return invokeStaticMethod(app.classLoader.loadClass(className), methodName, ptAndArgs = ptAndArgs)
     }
 
     /**
